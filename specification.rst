@@ -11,25 +11,14 @@ Dr. Martin Isenburg
 .. class:: heading4
 
     Contact Address:
-
-.. class:: address
-
-    Dr. Martin Isenburg
-    
-    Greifswalderstrasse 7
-        
-    63110 Rodgau
-    
-    GERMANY
     
     martin.isenburg@gmail.com
-    
 
 .. class:: heading4
     
     Title: 
 
-Generic LiDAR Point Compression
+PulseWaves (version 0.9) - no pulse left behind
 
     Date: 
 
