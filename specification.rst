@@ -380,11 +380,17 @@ Sampling Description Records:
 Version:
   Must be zero.
 
+Type:
+  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
+
 Reserved:
   Must be zero.
 
-Type:
-  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
+Bits per sample:
+  8 or 16 bits are common values.
+
+Number of Samples:
+  The number of samples in this sampling.
 
 Channel Number:
   This number is 0 when sampling with a single sensor. If the signal is sampled with h channels the number is between 0 and h-1.
@@ -398,14 +404,11 @@ Segment Number:
 Number of Segments:
   This number is 1 when the waveform is sampled with a single segment (on either one or multiple channels).
 
-Bits per sample:
-  8 or 16 bits are common values.
-
-Number of Samples:
-  The number of samples in this sampling.
-
 Sample Units:
   The temporal unit of spacing between subsequent samples in picoseconds. Example values might be 500, 1000, 2000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
+
+Unused:
+  Must be zero.
 
 Digitizer Gain:
   The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
@@ -417,49 +420,74 @@ Description:
   Optional, null terminated text description of the data.  Any remaining characters not used must be null.
 
 
+==============================================================================
+The WaVeS file (\*.wvs)
+==============================================================================
+
+The WaVeS file (\*.wvs) is not a stand-alone file but needs a corresponding PuLSe file (\*.pls) to be meaningful. It contains the actual samples of the waveforms. Each pulse of the PuLSe file contains a reference into the WaVeS file. All data are in little-endian format.
+
+.. csv-table:: The WaVeS File Structure 
+    :widths: 100
+
+    "Header"
+    "WaveSamples of Pulse"
+    "WaveSamples of Pulse"
+    "WaveSamples of Pulse"
+    "WaveSamples of Pulse"
+    "..."
+    "WaveSamples of Pulse"
+
+.. csv-table:: The WaVeS Header
+    :header: "Item", "Format", "Size"
+    :widths: 70, 10, 10
+    
+    "File Signature (“WaVe”)", "char[4]", "4 bytes"
+    "Reserved", "unsigned char[56]", "56 bytes"
+
+File Signature:
+  The file signature must contain the four characters “WaVe" that can be checked by user software as a quick look validate the file type.
+
+Reserved:
+  Must be zero.
+
+The header is a mostly place holder of 60 bytes to make it possible that a WaVeS file can easily be converted into a valid WDP file to accompany a LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the WaVeS file. 
+
+.. csv-table:: WaveSamples of Pulse
+    :header: "Item", "Units", "Format", "Size"
+    :widths: 70, 10, 10, 10
+    
+    "Start of Sampling 0", "sample units", "short", "2 bytes"
+    "Samples of Sampling 0", "-", "unsigned char[s0]", "s0 bytes"
+    "Start of Sampling 1", "sample units", "short", "2 bytes"
+    "Samples of Sampling 1", "-", "unsigned char[s1]", "s1 bytes"
+    "Start of Sampling 2", "sample units", "short", "2 bytes"
+    "Samples of Sampling 2", "-", "unsigned char[s2]", "s2 bytes"
+    "...", "...", "...", "..."		
+
+
+Start of Sampling m:
+  The temporal duration (in sampling units) from the anchor point to the first sample of sampling m. With this value you can get the x/y/z coordinate of the location that corresponds to the first sample of each sampling with:
+
+  x_{sample} = x_{anchor} + start_of_sampling_m \* sample_units * dx 
+
+  y_{sample} = y_{anchor} + start_of_sampling_m \* sample_units * dy 
+
+  z_{sample} = z_{anchor} + start_of_sampling_m \* sample_units * dz
+
+  while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled by the sample units again and again.
+
+Samples of Sampling m:
+  The actual waveform samples of sampling m either raw or compressed.
+
+
 The rest of the document is gibberish ...
 ------------------------------------------------------------------------------
 
 `PulseWaves`_ is a 
 
-Describing layout
-..............................................................................
-
-PulseWaves uses the concept 
-
-.. raw:: pdf
-
-    PageBreak
-
-Table Example
-------------------------------------------------------------------------------
-
-Full waveform data ...
-
 Example
 ..............................................................................
 
-Consider the:
-
-.. csv-table:: Basic Pulse
-    :header:    "Name", "Data Type", "Byte Size"
-    :widths: 70, 10, 10
-    
-    "X", "long", "4"
-    "Y", "long", "4"
-    "Z", "long", "4"
-
-Let's define the concept 
-
-::
-
-    Example;
-    Code;
-    Is.here();
-
-.. raw:: pdf
-
-    PageBreak
 
 Notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -468,12 +496,24 @@ Notes
 
 * In addition to the
 
-Another Example
-..............................................................................
 
-It is going to be better for ...
+Future Notes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+* ``PuLSe`` requires ...
+
+* Knowledge of how to make ...
+
+Example Formatting
+------------------------------------------------------------------------------
+
+PulseWaves currently defines 
+
+1) Pulse ...
+
+2) Waves ...
+  
+   ::
 
     class PuLSe
     {
@@ -487,55 +527,6 @@ It is going to be better for ...
     Code;
     Is.here();
 
-.. raw:: pdf
-
-    PageBreak
-
-Notes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``PuLSe`` requires ...
-
-* Knowledge of how to make ...
-
-
-LAS 1.2 POINT10
-..............................................................................
-
-Here is an example that defines a typical LAS  POINT10.
-
-.. csv-table:: LAS 1.2 POINT10
-    :header:    "Name", "Data Type", "Byte Size", "Bit Size"
-    :widths: 70, 10, 10, 10
-    
-    "X", "int32_t", "4","0"
-    "Y", "int32_t", "4","0"
-    "Z", "int32_t", "4","0"
-    "Intensity", "uint16_t", "2", "0"
-    "Return Number", "uint8_t", "0", "3"
-    "Number of Returns","uint8_t", "0", "3"
-    "Scan Direction Flag", "uint8_t", "0", "1"
-    "Edge of Flight Line", "uint8_t", "0", "1"
-    "Classification", "uint8_t", "1", "0"
-    "Scan Angle Rank" "int8_t", "1", "0"
-    "User Data", "uint8_t", "1", "0"
-    "Point Source ID", "uint16_t", "2", "0"
-
-.. raw:: pdf
-
-    PageBreak
-
-Some Object
-------------------------------------------------------------------------------
-
-PulseWaves currently defines 
-
-1) Pulse ...
-
-2) Waves ...
-  
-   ::
-   
          Pulse pulse;
          // initialize throws in the case of an error
          pulse.initialize();
