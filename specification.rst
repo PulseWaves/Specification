@@ -484,6 +484,8 @@ Start of Sampling m:
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled by the sample units again and again.
 
+  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in lreation to the origin of the pulse. Nothing changes obvioulsy, if anchor point and origin are identical (i.e. if the "Offset from Optical Center to Anchor Points" is zero).
+
 Samples of Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
 
