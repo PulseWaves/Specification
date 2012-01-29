@@ -343,7 +343,7 @@ Wavelength of Laser:
   The physical wavelength of the laser in nanometers.
 
 Outgoing Pulse Width:
-  The width of the outgoing pulse in picometer. The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled as well.
+  The width of the outgoing pulse in picometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
 
 Beam Diameter at Exit Aperture:
   The diameter of the laser beam in micrometer in the moment it leaves the scanner hardware.
@@ -355,6 +355,65 @@ Sampling Description Records:
   An array of Sampling Description Records as described in Table XXX.
 
 
+Sampling Description Records:
+------------------------------------------------------------------------------
+
+.. csv-table:: Sampling Description Record 
+    :header: "Item", "Unit", "Format", "Size"
+    :widths: 70, 10, 10, 10
+
+    "Version", "-", unsigned char", "1 byte" 
+    "Type", "-", "unsigned char", "1 byte" 
+    "Reserved", "-", "unsigned char[2]", "2 bytes 
+    "Channel Number", "-", "unsigned char", "1 byte" 
+    "Number of Channels", "-", "unsigned char", "1 byte" 
+    "Segment Number", "-", "unsigned char", "1 byte" 
+    "Number of Segments", "-", "unsigned char", "1 byte" 
+    "Bits per sample", "-", "unsigned char", "1 byte" 
+    "Number of samples", "-", "unsigned long", "4 bytes"
+    "Sample Units", "[picoseconds]", "unsigned long", "4 bytes"
+    "Digitizer Gain", "[Volt]", "double", "8 bytes"
+    "Digitizer Offset", "[Volt]", "double", "8 bytes"
+    "Description", "-", "char[32]", "32 bytes"
+
+Version:
+  Must be zero.
+
+Reserved:
+  Must be zero.
+
+Type:
+  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
+
+Channel Number:
+  This number is 0 when sampling with a single sensor. If the signal is sampled with h channels the number is between 0 and h-1.
+
+Number of Channels:
+  This number is 1 when sampling with a single sensor.
+
+Segment Number:
+  This number is 0 when the waveform is sampled with a single segment (on either one or multiple channels). If the outgoing (or returning) waveform is sampled with m different segments this number  is between 0 and m-1.
+
+Number of Segments:
+  This number is 1 when the waveform is sampled with a single segment (on either one or multiple channels).
+
+Bits per sample:
+  8 or 16 bits are common values.
+
+Number of Samples:
+  The number of samples in this sampling.
+
+Sample Units:
+  The temporal unit of spacing between subsequent samples in picoseconds. Example values might be 500, 1000, 2000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
+
+Digitizer Gain:
+  The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
+
+Digitizer Offset:
+  The gain and voltage offset are used to convert the raw digitized value to a voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
+
+Description:
+  Optional, null terminated text description of the data.  Any remaining characters not used must be null.
 
 
 The rest of the document is gibberish ...
