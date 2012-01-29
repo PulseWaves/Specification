@@ -18,7 +18,7 @@ Dec 23th, 2011
 
 .. class:: heading4
     
-This document describes an open standard specification for storing full waveform LiDAR data called PulseWaves. It is distributed for the purpose of discussing, evaluating, and brain-storming the initial PulseWaves format in the 1.0 version.  The current draft is expected to significantly change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as extra or different fields in the data records without breaking PulseWaves readers that only implement an older version.
+This document describes an open standard specification for storing full waveform LiDAR data called PulseWaves. It is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to significantly change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as extra or different fields in the data records without breaking PulseWaves readers that only implement an older version.
 
 The *Pulse* files describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files describe the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is compatible to the LASer format of the ASPRS. These LASer files describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the LASer returns are "attached" to.
 
@@ -145,22 +145,53 @@ X, Y, and Z Scale Factors:
 X, Y, and Z Offset:
   The offset fields contain double-precision floating point values used to offset  the X, Y, and Z long values of the pulse records. The formulas shown below convert from the X, Y, and Z long values of each pulse to the actual x, y, z coordinates.
 
-  xcoordinate = (X_{record} \* xscale) + xoffset
+  x_{coordinate} = (X_{record} \* x_{scale}) + x_{offset}
 
-  ycoordinate = (Yrecord \* yscale) + yoffset
+  y_{coordinate} = (Y_{record} \* y_{scale}) + y_{offset}
 
-  zcoordinate = (Zrecord \* zscale) + zoffset
+  z_{coordinate} = (Z_{record} \* z_{scale}) + z_{offset}
 
 Max and Min X, Y, Z:
   The max and min fields describe the bounding box that includes the start and end points of the sampled parts of the returning waveforms of all pulses.
 
-
-`PulseWaves`_ is a 
-
-How is this different from LAS?
+Variable Length Records (VLRs):
 ------------------------------------------------------------------------------
 
-LAS defines a 
+The PuLSe Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the PuLSe Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header.  Each Variable Length Record Header is 64 bytes in length. 
+
+.. csv-table:: Variable Length Records (VLRs)
+    :header:    "Item", "Format", "Size"
+    :widths: 70, 10, 10
+
+    "User ID", "char[16]", "16 bytes"
+    "Record ID", "unsigned long", "4 bytes"
+    "Reserved[4]", "unsigned char", "4 bytes"
+    "Record Length After Header", "long long", "8 bytes"
+    "Description", "char[32]", "32 bytes"
+
+User ID:
+  The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved. The User IDs "LASF_Spec and "LASF_Projection" from the LAS 1.4 specification are also reserved.
+
+Record ID:
+  The Record ID allows to distinuish different VLRs with the same User ID. The Record IDs for the User ID "PulseWaves_Spec" are reserved. Publicizing the meaning of a Record ID is left to the owner of the given User ID. 
+
+Reserved:
+  Must be zero.
+
+Record Length after Header:
+  The record length is the number of bytes for the record after the end of the standard part of the header. The entire record length is 64 bytes (the header size of the VLR) plus the Record Length after Header.
+
+Description:
+  Optional, null terminated text description of the data. Any remaining characters not used must be null.
+
+Appended Variable Length Records (AVLRs):
+------------------------------------------------------------------------------
+
+
+The rest of the document is gibberish ...
+------------------------------------------------------------------------------
+
+`PulseWaves`_ is a 
 
 Describing layout
 ..............................................................................
