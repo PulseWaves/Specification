@@ -10,7 +10,7 @@
 
 Date: 
 
-Dec 23th, 2011
+draft created on Dec 23th, 2011
 
 ***************************************************************************************
  PulseWaves - Full Waveform LiDAR Specification (version 0.1)
@@ -266,6 +266,94 @@ Scan Direction Flag:
 
 Edge of Flight Line:
   This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware changes direction, mirror facet, or zigs back.
+
+
+Defined Variable Length Records (VLRs or AVLRs):
+------------------------------------------------------------------------------
+
+The "LASF_Projection" VLR from LAS 1.4 can be used to geo-reference the pulse file. The "LASF_Proj" VLR "Extra Bytes" from LAS 1.4 can be used to specify extra attributes per pulse.
+
+First Appended Variable Length Record:
+------------------------------------------------------------------------------
+
+User ID:     		PulseWaves_Spec
+Record ID: 			4,294,967,295 (0xFFFFFFFF)
+Record Length Before Footer:	0
+
+This empty AVLR record *MUST* directly follow the pulse records and it must be the first AVLR in case there are multiple AVLRs. It does not carry a payload but is used to mark the end of the appendable list of AVLRs. This is needed as the exact number of AVLRs may not be specified in the header and needs to be discovered by parsing all AVLRs starting at the end of the file until this one is readed. This Record ID makes no sense when used with an VLR. 
+
+Pulse Description Records:
+------------------------------------------------------------------------------
+
+User ID: 	PulseWaves_Spec
+Record ID: 	n
+
+Where 100,000 <= n < 116,384
+
+The Pulse Description Records describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc.
+
+.. csv-table:: Pulse Description Record 
+    :header:    "Item", "Unit, "Format", "Size"
+    :widths: 70, 10, 10, 10
+
+    "Version", "-", "unsigned char", "1 byte"
+    "Reserved, "-", "unsigned char[7]", "7 bytes"
+    "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
+    "Sample Units", "[picoseconds]", "unsigned long", "4 bytes"
+    "Offset To Sampling Description Array", "[bytes]", "unsigned long", "4 bytes"
+    "Number of Sampling Descriptions", "-", "unsigned long", "4 bytes"
+    "Size of Sampling Description Records", "[bytes]", "unsigned long", "4 bytes"
+    "Description", "-", "char[32]", "32 bytes"
+    "Laser Scanner ID", "-", "unsigned long", "4 bytes"
+    "Wavelength of Laser", "[nanometer]", "unsigned long", "4 bytes"
+    "Outgoing Pulse Width", "-", "[picometer]", "unsigned long", "4 bytes"
+    "Beam Diameter at Exit Aperture", "[micrometers]", "unsigned long", "4 bytes"
+    "Beam Divergance", "[microradians]", "unsigned long", "4 bytes"
+    "Sampling Description Records[n]", "-", "struct of size m", "n*m bytes"
+
+Version:
+  Must be zero.
+
+Reserved:
+  Must be zero.
+
+Offset from Optical Center to Anchor Points:
+  Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
+
+Sample Units:
+  Specifies the temporal unit of sampling in picoseconds that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample".
+
+Offset to Sampling Description Array:
+  The offset in bytes from the start of the Pulse Description Record to the first "Sampling Description Record" of the "Sampling Description Records[n]" array. PulseWaves readers should use this value to seek to the first "Sampling Description Record" of the "Sampling Description Records [n]" array because later versions of the PulseWaves specification may insert additional fields after "Beam Divergence".
+
+Number of Sampling Descriptions:
+  A value larger than 0 specifying the number of "Sampling Description Records" start at the byte indicated by the "Offset to Samplings Array" field. 
+
+Size of Sampling Description Records:
+  A value that specifies the size of each of the "Sampling Description Records" that start at the byte indicated by "Offset to Sampling Description Array" field.  PulseWaves readers should use this value to seek forward to the next "Sampling Description Record" as later versions of the PulseWaves specification may enlarge each "Sampling Description Record" by adding new fields at the end.
+
+Description:
+  Optional, null terminated text description of the data.  Any remaining characters not used must be null.
+
+Laser Scanner ID:
+  In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
+
+Wavelength of Laser:
+  The physical wavelength of the laser in nanometers.
+
+Outgoing Pulse Width:
+  The width of the outgoing pulse in picometer. The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled as well.
+
+Beam Diameter at Exit Aperture:
+  The diameter of the laser beam in micrometer in the moment it leaves the scanner hardware.
+
+Beam Divergance:
+  The divergance of the laser beam in microradians [urad] @ 1/e2. [or should we use @ 1/e]?
+
+Sampling Description Records:
+  An array of Sampling Description Records as described in Table XXX.
+
+
 
 
 The rest of the document is gibberish ...
