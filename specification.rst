@@ -53,7 +53,7 @@ The Header contains generic data such as the version of the file, creation date,
 The waveform samples of the pulses that are reported in the Pulse Records are stored in a separate WaVeS file that must be in the same directory and have the same base name as the *.pls file, but have the ending *.wvs. 
 
 .. csv-table:: The PuLSe Header
-    :header:    "Item", "Format", "Size"
+    :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
     
     "File Signature (“PuLS”)", "char[4]", "4 bytes"
@@ -160,7 +160,7 @@ Variable Length Records (VLRs):
 The PuLSe Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the PuLSe Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header.  Each Variable Length Record Header is 64 bytes in length. 
 
 .. csv-table:: Variable Length Records (VLRs)
-    :header:    "Item", "Format", "Size"
+    :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
 
     "User ID", "char[16]", "16 bytes"
@@ -190,7 +190,7 @@ Appended Variable Length Records (AVLRs):
 The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the PuLSe Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. 
 
 .. csv-table:: Appended Variable Length Records (AVLRs)
-    :header:    "Item", "Format", "Size"
+    :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
 
     "User ID", "char[16]", "16 bytes"
@@ -205,7 +205,7 @@ Pulse Records:
 All records must be the same type. Unused attributes must be set to the equivalent of zero for the respective data type (e.g. 0.0 for floating-point numbers, NULL for ASCII, 0 for integers). The pulse record format 0 expresses the pulse as an anchor point plus direction vector.
 
 .. csv-table:: Pulse Record Type 0
-    :header:    "Item", "Format", "Size"
+    :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
 
     "GPS time", "double (or long long)", "8 bytes"
@@ -293,7 +293,7 @@ Where 100,000 <= n < 116,384
 The Pulse Description Records describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc.
 
 .. csv-table:: Pulse Description Record 
-    :header:    "Item", "Unit, "Format", "Size"
+    :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
 
     "Version", "-", "unsigned char", "1 byte"
