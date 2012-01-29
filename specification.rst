@@ -187,6 +187,86 @@ Description:
 Appended Variable Length Records (AVLRs):
 ------------------------------------------------------------------------------
 
+The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the PuLSe Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. 
+
+.. csv-table:: Appended Variable Length Records (AVLRs)
+    :header:    "Item", "Format", "Size"
+    :widths: 70, 10, 10
+
+    "User ID", "char[16]", "16 bytes"
+    "Record ID", "unsigned long", "4 bytes"
+    "Reserved[4]", "unsigned char", "4 bytes"
+    "Record Length Before Footer", "long long", "8 bytes"
+    "Description", "char[32]", "32 bytes"
+
+Pulse Records:
+------------------------------------------------------------------------------
+
+All records must be the same type. Unused attributes must be set to the equivalent of zero for the respective data type (e.g. 0.0 for floating-point numbers, NULL for ASCII, 0 for integers). The pulse record format 0 expresses the pulse as an anchor point plus direction vector.
+
+.. csv-table:: Pulse Record Type 0
+    :header:    "Item", "Format", "Size"
+    :widths: 70, 10, 10
+
+    "GPS time", "double (or long long)", "8 bytes"
+    "Offset to WaVeSamples", "long long", "8 bytes"
+    "X_A", "long", "4 bytes"
+    "Y_A", "long", "4 bytes"
+    "Z_A", "long", "4 bytes"
+    "dx", "float", "4 bytes"
+    "dy", "float", "4 bytes"
+    "dz", "float", "4 bytes"
+    "First Returning Sample [sampling units]", "short", "2 bytes"
+    "Last Returning Sample [sampling units]", "short", "2 bytes"
+    "Index of Pulse Description Record", "14 bits (bit 0-13)", "14 bits"
+    "Edge of Flight Line", "1 bit (bit 14)", "1 bit"
+    "Scan Direction", "1 bit (bit 15)", "1 bit"
+
+GPS time:
+  The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the PuLSe header.
+
+Offset to WaVeSamples:
+  The offset in bytes from the start of the WaVeS file to the samples of the waveform. How the pulse is sampled is described in the indexed "Pulse Description Record".
+
+X_A, Y_A, and Z_A:
+  The anchor point of the pulse. Scaling and offseting the integers X_A, Y_A, and Z_A with scale and offset from the header gives the actual coordinates in world coordinates. The anchor point equals the location of the scanner's optical origin at the time the laser was fired, if the "Offset from Optical Center to Anchor Points" field of the "Pulse Description Record" is zero.
+
+  x_{anchor} = (X_A \* x_{scale}) + x_{offset}
+
+  y_{anchor} = (Y_A \* y_{scale}) + y_{offset}
+ 
+  z_{anchor} = (Z_A \* z_{scale}) + z_{offset}
+
+dx, dy, and dz:
+  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) picosecond away from the origin (e.g. towards the ground in an airborne survey).
+
+First Returning Sample:
+  The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the "Sample Units" value from the corresponding "Pulse Description Record" this value allows computing the x/y/z world coordinates of the first intensity sample that was recorded for the returning waveform of this pulse:
+
+  x_{first} = x_{anchor} + first_returning_sample \* sample_units * dx
+
+  y_{first} = y_{anchor} + first_returning_sample \* sample_units * dy
+
+  z_{first} = z_{anchor} + first_returning_sample \* sample_units * dz
+
+Last Returning Sample:
+  Same concept as the "First Returning Sample" but for the last one:
+
+  x_{last} = x_{anchor} + last_returning_sample \* sample_units * dx
+
+  y_{last} = y_{anchor} + last_returning_sample \* sample_units * dy
+
+  z_{last} = z_{anchor} + last_returning_sample \* sample_units * dz
+
+Index of Pulse Description Record:
+  The record ID of the "PulseWaves_Spec" VLR or AVLR containing a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Description Record". Up to 16,384 different descriptions can be  specified.
+
+Scan Direction Flag:
+  This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction or as long as they are reflected from the same mirror facet of the scanner. It flips whenever the mirror direction or the facet changes.
+
+Edge of Flight Line:
+  This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware changes direction, mirror facet, or zigs back.
+
 
 The rest of the document is gibberish ...
 ------------------------------------------------------------------------------
