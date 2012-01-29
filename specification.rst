@@ -310,6 +310,7 @@ The Pulse Description Records describes the scanner system that the pulse origin
     "Outgoing Pulse Width", "[picometer]", "unsigned long", "4 bytes"
     "Beam Diameter at Exit Aperture", "[micrometers]", "unsigned long", "4 bytes"
     "Beam Divergance", "[microradians]", "unsigned long", "4 bytes"
+    "Unused", "-", "char[4]", "4 bytes"
     "Sampling Description Records[n]", "-", "struct of size m", "n*m bytes"
 
 Version:
@@ -350,6 +351,9 @@ Beam Diameter at Exit Aperture:
 
 Beam Divergance:
   The divergance of the laser beam in microradians [urad] @ 1/e2. [or should we use @ 1/e]?
+
+Unused:
+  Must be zero.
 
 Sampling Description Records:
   An array of Sampling Description Records as described in Table XXX.
