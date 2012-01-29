@@ -364,14 +364,15 @@ Sampling Description Records:
 
     "Version", "-", unsigned char", "1 byte" 
     "Type", "-", "unsigned char", "1 byte" 
-    "Reserved", "-", "unsigned char[2]", "2 bytes 
+    "Reserved", "-", "unsigned char[5]", "5 bytes" 
+    "Bits per sample", "-", "unsigned char", "1 byte" 
+    "Number of samples", "-", "unsigned long", "4 bytes"
     "Channel Number", "-", "unsigned char", "1 byte" 
     "Number of Channels", "-", "unsigned char", "1 byte" 
     "Segment Number", "-", "unsigned char", "1 byte" 
     "Number of Segments", "-", "unsigned char", "1 byte" 
-    "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Number of samples", "-", "unsigned long", "4 bytes"
     "Sample Units", "[picoseconds]", "unsigned long", "4 bytes"
+    "Unused", "-", "unsigned char[4]", "4 bytes" 
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
     "Description", "-", "char[32]", "32 bytes"
