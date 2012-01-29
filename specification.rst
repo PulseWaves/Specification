@@ -73,7 +73,8 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Offset to Pulse Records", "long long", "8 bytes"
     "Number of Variable Length Records", "unsigned long", "4 bytes"
     "Number of Appended Variable Length Records", "long", "4 bytes"
-    "Pulse Format", "unsigned long", "4 bytes"
+    "Pulse Format", "unsigned short", "2 bytes"
+    "Pulse Compression", "unsigned short", "2 bytes"
     "Pulse Record Size", "unsigned long", "4 bytes"
     "Number of Pulse Records", "long long", "8 bytes"
     "X Scale Factor", "double", "8 bytes"
@@ -119,7 +120,7 @@ File Creation Year:
   The year, expressed as a four digit number, in which the file was created.  
 
 Header Size:
-  The size, in bytes, of the PuLSe Header itself. For PuLSe 1.0 this size is 224  bytes. If the header is extended through the addition of data at the end of the header by a new revision of the PuLSe specification, the Header Size field will reflect this. 
+  The size, in bytes, of the PuLSe Header itself. For version 1.0 this size is 224  bytes. If the header is extended through the addition of data at the end of the header by a new revision of the PuLSe specification, the Header Size field will reflect this. 
 
 Offset to Pulse Records:
   The actual number of bytes from the beginning of the file to the first pulse record data field.  This data offset must be updated if any software adds/removes data to/from the Variable Length Records.
@@ -131,7 +132,10 @@ Number of Appended Variable Length Records:
   This field contains the current number of AVLRs that are stored the file after the Pulse Records. This number should be updated if the number of AVLRs changes. This number may be set to \"-1\", which indicates that the number of AVLRs is not known and must be determined my parsing the AVLRs starting at the end of the file.
 
 Pulse Format:
-  The format of the pulse records. In PuLSe 1.0 this is always 0.
+  The format of the pulse records. In version 1.0 this is always 0.
+
+Pulse Compression:
+  The compression scheme used for the pulse records. In version 1.0 there is no compression and this is always 0.
 
 Pulse Record Length:
   The size, in bytes, of the Pulse Record. All Pulse Records within a PuLSe file have the same type and hence the same length. If the specified size is larger than implied by the pulse format (e.g. 32 bytes instead of 28 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
