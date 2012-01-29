@@ -484,6 +484,12 @@ Samples of Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
 
 
+.. figure:: pulsewaves.jpg
+   :scale: 100 %
+   :alt: illustration of a Pulse Description VLR
+
+   An illustration of a typical Pulse Description VLR.
+
 The rest of the document is gibberish ...
 ------------------------------------------------------------------------------
 
