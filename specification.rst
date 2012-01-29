@@ -1,44 +1,40 @@
-***************************************************************************************
- PulseWaves Specification (version 0.9)
-***************************************************************************************
-
-.. class:: heading4
-    
-    Principle Investigator: 
-
-Dr. Martin Isenburg
-
-.. class:: heading4
-
-    Contact Address:
-    
-    martin.isenburg@gmail.com
-
-.. class:: heading4
-    
-    Title: 
-
-PulseWaves (version 0.9) - no pulse left behind
-
-    Date: 
-
-Dec 23th, 2011
-
 .. raw:: pdf
 
     SetPageCounter 1 arabic
 
 .. footer::
 
+   This is the official PulseWaves document. It describes an open, stand-alone, vendor-neutral, geo-referenced, LAS-compatible specification for full waveform LiDAR data.
+
    Page ###Page###
 
-.. raw:: pdf
+Date: 
 
-    PageBreak
+Dec 23th, 2011
+
+***************************************************************************************
+ PulseWaves - Full Waveform LiDAR Specification (version 0.1)
+***************************************************************************************
+
+.. class:: heading4
+    
+This document describes an open standard specification for storing full waveform LiDAR data called PulseWaves. It is distributed for the purpose of discussing, evaluating, and brain-storming the initial PulseWaves format in the 1.0 version.  The current draft is expected to significantly change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as extra or different fields in the data records without breaking PulseWaves readers that only implement an older version.
+
+The *Pulse* files describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files describe the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is compatible to the LASer format of the ASPRS. These LASer files describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the LASer returns are "attached" to.
 
 ==============================================================================
 Introduction
 ==============================================================================
+
+This document describes the simple stand-alone PulseWaves format for storing geo-referenced full waveform data that is compatible with the LAS format and that is just as simple to parse and use. It consists of two files: a PuLSe file (*.pls) and a WaVeS (*.wvs) file. 
+
+The PuLSe file is stand-alone. It describes a geo-referenced locations and directions of the pulses. For each fired pulse it stores the geo-referenced coordinates of the lasers's optical center and the geo-referenced direction vector of the pulse together with the moment that the first and last sample for the returning waveform was recorded. This file alone is, for example, already sufficient to verify coverage or "sweep out" the scanned 3D space.
+
+The WaVeS file is *not* stand-alone and depends upon the PuLSe file. Each pulse in the PuLSe file contains an offset into the WaVeS file to where the actual digitized samples for the relevant segments of that pulse are stored that describe the shape of the waveform in detail. The format how the waveforms are sampled is kept flexible as each pulse references a sampling description. 
+
+Via the GPS time the pulses in the PuLSe file and their associated WaVeS may (optionally) be linked to the discrete point returns stored in corresponding LASer files and vice-versa.
+
+
 
 `PulseWaves`_ is a 
 
