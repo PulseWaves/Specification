@@ -56,7 +56,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
     
-    "File Signature (“PuLS”)", "char[4]", "4 bytes"
+    "File Signature (“PulseWavesPulse”)", "char[16]", "16 bytes"
     "File Source ID", "unsigned long", "4 bytes"
     "Global Encoding", "unsigned long", "4 bytes"
     "Project ID - GUID data 1", "unsigned long", "4 bytes"
@@ -93,7 +93,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
 Any field in the PuLSe Header that is not required or that is not used must be zero filled.
 
 File Signature:
-  The file signature must contain the four characters “PuLS" that can be checked by user software as a quick look validate the file type.
+  The file signature must contain the zero-terminated string “PulseWavesPulse" that can be checked by user software as a quick look validate the file type.
 
 File Source ID:
   If this file contains the pulses from an original flight line this field should contain the flight line number. A value of zero (0) is interpreted to mean that an ID has not been assigned. 
@@ -449,11 +449,11 @@ The WaVeS file (\*.wvs) is not a stand-alone file but needs a corresponding PuLS
     :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
     
-    "File Signature (“WaVe”)", "char[4]", "4 bytes"
+    "File Signature (“PulseWavesWaves”)", "char[16]", "16 bytes"
     "Reserved", "unsigned char[56]", "56 bytes"
 
 File Signature:
-  The file signature must contain the four characters “WaVe" that can be checked by user software as a quick look validate the file type.
+  The file signature must contain the zero-terminated string “PulseWavesWaves" that can be checked by user software as a quick look validate the file type.
 
 Reserved:
   Must be zero.
