@@ -304,7 +304,7 @@ The Pulse Description Records describes the scanner system that the pulse origin
     "Version", "-", "unsigned char", "1 byte"
     "Reserved", "-", "unsigned char[7]", "7 bytes"
     "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
-    "Sample Units", "[picoseconds]", "unsigned long", "4 bytes"
+    "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
     "Offset To Sampling Description Array", "[bytes]", "unsigned long", "4 bytes"
     "Number of Sampling Descriptions", "-", "unsigned long", "4 bytes"
     "Size of Sampling Description Records", "[bytes]", "unsigned long", "4 bytes"
@@ -327,7 +327,7 @@ Offset from Optical Center to Anchor Points:
   Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
 
 Sample Units:
-  Specifies the temporal unit of sampling in picoseconds that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample".
+  Specifies the temporal unit of sampling in attoseconds (1e-18 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond are 1,000,000,000 attoseconds and 499.75 picoseconds are 499,750,000 attoseconds.
 
 Offset to Sampling Description Array:
   The offset in bytes from the start of the Pulse Description Record to the first "Sampling Description Record" of the "Sampling Description Records[n]" array. PulseWaves readers should use this value to seek to the first "Sampling Description Record" of the "Sampling Description Records [n]" array because later versions of the PulseWaves specification may insert additional fields after "Beam Divergence".
@@ -380,7 +380,7 @@ Sampling Description Records:
     "Number of Channels", "-", "unsigned char", "1 byte" 
     "Segment Number", "-", "unsigned char", "1 byte" 
     "Number of Segments", "-", "unsigned char", "1 byte" 
-    "Sample Units", "[picoseconds]", "unsigned long", "4 bytes"
+    "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
     "Description", "-", "char[32]", "32 bytes"
@@ -416,7 +416,7 @@ Number of Segments:
   This number is 1 when the waveform is sampled with a single segment (on either one or multiple channels).
 
 Sample Units:
-  The temporal unit of spacing between subsequent samples in picoseconds. Example values might be 500, 1000, 2000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
+  The temporal unit of spacing between subsequent samples in attoseconds (1e-18 secs). Example values might be 500,000,000, 1,000,000,000, 2,000,000,000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
 
 Digitizer Gain:
   The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
