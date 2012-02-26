@@ -374,7 +374,7 @@ Sampling Description Records:
     "Type", "-", "unsigned char", "1 byte" 
     "Reserved", "-", "unsigned char[5]", "5 bytes" 
     "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Number of samples", "-", "unsigned long", "4 bytes"
+    "Number of samples", "-", "long", "4 bytes"
     "Compression Options", "-", "unsigned char[4]", "4 bytes" 
     "Channel Number", "-", "unsigned char", "1 byte" 
     "Number of Channels", "-", "unsigned char", "1 byte" 
@@ -395,10 +395,10 @@ Reserved:
   Must be zero.
 
 Bits per sample:
-  8 or 16 bits are common values.
+  The number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
 
 Number of Samples:
-  The number of samples in this sampling.
+  If the number is positive it signals that a fixed sampling is used. The value of the number specifies the fixed number of samples in this sampling. If the number is negative it signals that a variable sampling is used. The absolute value of the number specifies the number of bits at the beginning of the Waves data that are used to store the variable number of samples in the sampling. In version 1.0 the only negative values that are allowed are -8 and -16 meaning that 8 or 16 bit numbers are supported.
 
 Compression Options:
   Must be zero. No compression. Will later be used to specify compression options.
@@ -465,10 +465,13 @@ The header is a mostly place holder of 60 bytes to make it possible that a WaVeS
     :widths: 70, 10, 10, 10
     
     "Start of Sampling 0", "sample units", "short", "2 bytes"
+    "Number of Samples in Sampling 0", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 0", "-", "unsigned char[s0]", "s0 bytes"
     "Start of Sampling 1", "sample units", "short", "2 bytes"
+    "Number of Samples in Sampling 1", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 1", "-", "unsigned char[s1]", "s1 bytes"
     "Start of Sampling 2", "sample units", "short", "2 bytes"
+    "Number of Samples in Sampling 2", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 2", "-", "unsigned char[s2]", "s2 bytes"
     "...", "...", "...", "..."		
 
@@ -485,6 +488,9 @@ Start of Sampling m:
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled by the sample units again and again.
 
   One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in lreation to the origin of the pulse. Nothing changes obvioulsy, if anchor point and origin are identical (i.e. if the "Offset from Optical Center to Anchor Points" is zero).
+
+Number of Samples in Sampling m:
+  In case of a fixed sampling this field does not exist. In case of a variable sampling the number of samples that are following is stored with either 8 or 16 bits.
 
 Samples of Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
