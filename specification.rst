@@ -301,12 +301,12 @@ The Pulse Description Record describes the scanner system that the pulse origina
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "-", "unsigned long", "4 bytes"
-    "Size", "-", "unsigned long", "4 bytes"
+    "Version", "---", "unsigned long", "4 bytes"
+    "Size", "---", "unsigned long", "4 bytes"
     "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
     "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
-    "Number of Samplings", "-", "unsigned long", "4 bytes"
-    "Scanner ID", "-", "unsigned long", "4 bytes"
+    "Number of Samplings", "---", "unsigned long", "4 bytes"
+    "Scanner ID", "---", "unsigned long", "4 bytes"
     "Wavelength", "[picometer]", "unsigned long", "4 bytes"
     "Outgoing Pulse Width", "[picometer]", "unsigned long", "4 bytes"
     "Beam Diameter at Exit Aperture", "[micrometers]", "unsigned long", "4 bytes"
@@ -314,7 +314,7 @@ The Pulse Description Record describes the scanner system that the pulse origina
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
-    "Description", "-", "char[32]", "32 bytes"
+    "Description", "---", "char[32]", "32 bytes"
 
 Version:
   Must be zero.
@@ -356,24 +356,24 @@ Sampling Description Records:
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "-", unsigned long", "4 bytes" 
-    "Size", "-", "unsigned long", "4 bytes" 
-    "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Number of samples", "-", "unsigned long", "4 bytes"
-    "Compression Options", "-", "unsigned long", "4 bytes" 
-    "Type", "-", "unsigned char", "1 byte" 
-    "Channel", "-", "unsigned char", "1 byte" 
-    "Segment", "-", "unsigned short", "2 byte" 
+    "Version", "---", unsigned long", "4 bytes" 
+    "Size", "---", "unsigned long", "4 bytes" 
+    "Bits per sample", "---", "unsigned char", "1 byte" 
+    "Bits per sample", "---", "unsigned char", "1 byte" 
+    "Bits per sample", "---", "unsigned char", "1 byte" 
+    "Bits per sample", "---", "unsigned char", "1 byte" 
+    "Number of samples", "---", "unsigned long", "4 bytes"
+    "Compression Options", "---", "unsigned long", "4 bytes" 
+    "Type", "---", "unsigned char", "1 byte" 
+    "Channel", "---", "unsigned char", "1 byte" 
+    "Segment", "---", "unsigned short", "2 byte" 
     "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
-    "Description", "-", "char[32]", "32 bytes"
+    "Description", "---", "char[32]", "32 bytes"
 
 Version:
   Must be zero.
@@ -453,16 +453,16 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     
     "Distance from Anchor of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
     "Fractional Distance of Sampling 0", "sample unit fractions", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 0", "-", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 0", "-", "unsigned char[s0]", "s0 bytes"
+    "Number of Samples in Sampling 0", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
     "Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
     "Fractional Distance of Sampling 1", "sample unit fractions", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 1", "-", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 1", "-", "unsigned char[s1]", "s1 bytes"
+    "Number of Samples in Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
     "Distance from Anchor of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
     "Fractional Distance of Sampling 2", "sample unit fractions", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 2", "-", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 2", "-", "unsigned char[s2]", "s2 bytes"
+    "Number of Samples in Sampling 2", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
     "...", "...", "...", "..."		
 
 Distance from Anchor of Sampling m:
