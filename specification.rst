@@ -466,10 +466,10 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     "...", "...", "...", "..."		
 
 Distance from Anchor of Sampling m:
-  This field only exists if the number of "bits for distance from anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in whole sampling units. There may be a remaining fractional distance if the distance between anchor point and first sample is not an integer multiple of the sampling unit. If the number of bits for distance from anchor in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling.
+  This field only exists if the number of "bits for distance from anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in whole sampling units. There may be a remaining fractional distance if the distance between anchor point and first sample is not an integer multiple of the sampling unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling.
 
 Fractional Distance of Sampling m:
-  This field only exists if the number of "bits for fractional distance" in the corresponding sampling description record is non-zero. It then specifies any remaining distance from the anchor point to the first sample of sampling m in fractions of one sampling unit (i.e. in fractions of 1/256th or 1/65536th of a sampling unit). f the number of bits for fractional distance in the corresponding sampling description is zero then the fractional distance is zero and the distance between anchor point and the first sample of the sampling is an integer multiple.
+  This field only exists if the number of "bits for fractional distance" in the corresponding sampling description record is non-zero. It then specifies any remaining distance from the anchor point to the first sample of sampling m in fractions of one sampling unit (i.e. in fractions of 1/256th or 1/65536th of a sampling unit). If the number of "bits for fractional distance" in the corresponding sampling description is zero then the fractional distance is zero and the distance between anchor point and the first sample of the sampling is an integer multiple.
 
   The two distances determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
 
@@ -484,12 +484,10 @@ Fractional Distance of Sampling m:
   One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes obvioulsy, if anchor point and origin are identical (i.e. if the "Offset from Optical Center to Anchor Points" is zero).
 
 Number of Samples in Sampling m:
-
-  This field only exists if the number of "bits for fractional distance"   in the corresponding sampling description record is non-zero. It then specifies a variable sampling the number of samples that are following is stored with either 8 or 16 bits.
+  This field only exists if the number of "bits for number of samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples that are following and the waveform has a "variable sampling". If the number of "bits for number of samples" in the corresponding sampling description is zero the "number of samples" is specified in the sampling description and the waveform has a "fixed sampling".
 
 Samples of Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
-
 
 .. figure:: pulsewaves.jpg
    :scale: 100 %
