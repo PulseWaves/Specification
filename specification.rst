@@ -18,9 +18,9 @@ draft created on Dec 23th, 2011
 
 .. class:: heading4
     
-This document describes an open standard specification for storing full waveform LiDAR data called PulseWaves. It is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to significantly change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as extra or different fields in the data records without breaking PulseWaves readers that only implement an older version.
+This document describes PulseWaves - an open, vendor-neutral standard specification for storing geo-referenced full waveform LiDAR data. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to continuously change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement an older version of the specification.
 
-The *PuLSe* files describe the emitted laser pulses with geo-referenced origin and direction. The *WaVeS* files describe the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is compatible to the LASer format of the ASPRS. These *LASer* files describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the LASer returns are "attached" to.
+The *Pulse* files (*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
 ==============================================================================
 Introduction
@@ -28,7 +28,7 @@ Introduction
 
 This document describes the simple stand-alone PulseWaves format for storing geo-referenced full waveform data that is compatible with the LAS format and that is just as simple to parse and use. It consists of two binary files: a PuLSe file (\*.pls) and a WaVeS (\*.wvs) file. 
 
-The PuLSe file is stand-alone. It describes a geo-referenced locations and directions of the pulses. For each fired pulse it stores the geo-referenced coordinates of the lasers's optical center and the geo-referenced direction vector of the pulse together with the moment that the first and last sample for the returning waveform was recorded. This file alone is, for example, already sufficient to verify coverage or "sweep out" the scanned 3D space.
+The Pulse file is stand-alone. It describes a geo-referenced locations and directions of the pulses. For each fired pulse it stores the geo-referenced coordinates of the lasers's optical center and the geo-referenced direction vector of the pulse together with the moment that the first and last sample for the returning waveform was recorded. This file alone is, for example, already sufficient to verify coverage or "sweep out" the scanned 3D space.
 
 The WaVeS file is *not* stand-alone and depends upon the PuLSe file. Each pulse in the PuLSe file contains an offset into the WaVeS file to where the actual digitized samples for the relevant segments of that pulse are stored that describe the shape of the waveform in detail. The format how the waveforms are sampled is kept flexible as each pulse references a sampling description. 
 
@@ -347,7 +347,7 @@ Beam Divergance:
   The divergance of the laser beam in microradians [urad] @ 1/e2. [or should we use @ 1/e]?
 
 Description:
-  Null terminated text description of the data (optional).  Any characters not used must be null.
+  Null terminated text description (optional).  Any characters not used must be null.
 
 Sampling Description Records:
 ------------------------------------------------------------------------------
@@ -356,29 +356,33 @@ Sampling Description Records:
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "-", unsigned char", "1 byte" 
-    "Type", "-", "unsigned char", "1 byte" 
-    "Reserved", "-", "unsigned char[5]", "5 bytes" 
+    "Version", "-", unsigned long", "4 bytes" 
+    "Size", "-", "unsigned long", "4 bytes" 
     "Bits per sample", "-", "unsigned char", "1 byte" 
-    "Number of samples", "-", "long", "4 bytes"
-    "Compression Options", "-", "unsigned char[4]", "4 bytes" 
-    "Channel Number", "-", "unsigned char", "1 byte" 
-    "Number of Channels", "-", "unsigned char", "1 byte" 
-    "Segment Number", "-", "unsigned char", "1 byte" 
-    "Number of Segments", "-", "unsigned char", "1 byte" 
+    "Bits per sample", "-", "unsigned char", "1 byte" 
+    "Bits per sample", "-", "unsigned char", "1 byte" 
+    "Bits per sample", "-", "unsigned char", "1 byte" 
+    "Number of samples", "-", "unsigned long", "4 bytes"
+    "Compression Options", "-", "unsigned long", "4 bytes" 
+    "Type", "-", "unsigned char", "1 byte" 
+    "Channel", "-", "unsigned char", "1 byte" 
+    "Segment", "-", "unsigned short", "2 byte" 
     "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
     "Description", "-", "char[32]", "32 bytes"
 
 Version:
   Must be zero.
 
-Type:
-  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
-
 Reserved:
   Must be zero.
+
+Size:
+  The byte-aligned size of attributes from Version to and including Description.
 
 Bits per sample:
   The number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
@@ -389,17 +393,14 @@ Number of Samples:
 Compression Options:
   Must be zero. No compression. Will later be used to specify compression options.
 
-Channel Number:
-  This number is 0 when sampling with a single sensor. If the signal is sampled with h channels the number is between 0 and h-1.
+Type:
+  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
 
-Number of Channels:
-  This number is 1 when sampling with a single sensor.
+Channel:
+  This number is 0 when sampling with a single sensor. If the signal is sampled with h channels the number is between 0 and h-1.
 
 Segment Number:
   This number is 0 when the waveform is sampled with a single segment (on either one or multiple channels). If the outgoing (or returning) waveform is sampled with m different segments this number  is between 0 and m-1.
-
-Number of Segments:
-  This number is 1 when the waveform is sampled with a single segment (on either one or multiple channels).
 
 Sample Units:
   The temporal unit of spacing between subsequent samples in attoseconds (1e-18 secs). Example values might be 500,000,000, 1,000,000,000, 2,000,000,000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
@@ -408,14 +409,14 @@ Digitizer Gain:
   The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
 
 Digitizer Offset:
-  The gain and voltage offset are used to convert the raw digitized value to a voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
+  The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
 
 Description:
-  Optional, null terminated text description of the data.  Any remaining characters not used must be null.
+  Null terminated text description (optional).  Any characters not used must be null.
 
 
 ==============================================================================
-The WaVeS file (\*.wvs)
+The Waves file (\*.wvs)
 ==============================================================================
 
 The WaVeS file (\*.wvs) is not a stand-alone file but needs a corresponding PuLSe file (\*.pls) to be meaningful. It contains the actual samples of the waveforms. Each pulse of the PuLSe file contains a reference into the WaVeS file. All data are in little-endian format.
