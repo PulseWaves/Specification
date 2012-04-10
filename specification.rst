@@ -4,7 +4,7 @@
 
 .. footer::
 
-   This is the official PulseWaves document. It describes an open, stand-alone, vendor-neutral, geo-referenced, LAS-compatible specification for full waveform LiDAR data.
+   This is the official PulseWaves document. It describes the specification of an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for geo-referenced full waveform LiDAR data.
 
    Page ###Page###
 
@@ -18,31 +18,31 @@ draft created on Dec 23th, 2011
 
 .. class:: heading4
     
-This document describes PulseWaves - an open, vendor-neutral standard specification for storing geo-referenced full waveform LiDAR data. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to continuously change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement an older version of the specification.
+This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to continuously change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement an older version of the specification.
 
-The *Pulse* files (*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
+The PulseWaves format consists of two binary files: The *Pulse* files (*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
 ==============================================================================
 Introduction
 ==============================================================================
 
-This document describes the simple stand-alone PulseWaves format for storing geo-referenced full waveform data that is compatible with the LAS format and that is just as simple to parse and use. It consists of two binary files: a PuLSe file (\*.pls) and a WaVeS (\*.wvs) file. 
+This document describes the simple PulseWaves data exchange format for storing geo-referenced full waveform data that is compatible with the LAS format and just as simple to parse and use. It consists of two binary files: a Pulse file (\*.pls) and a Waves (\*.wvs) file. 
 
 The Pulse file is stand-alone. It describes a geo-referenced locations and directions of the pulses. For each fired pulse it stores the geo-referenced coordinates of the lasers's optical center and the geo-referenced direction vector of the pulse together with the moment that the first and last sample for the returning waveform was recorded. This file alone is, for example, already sufficient to verify coverage or "sweep out" the scanned 3D space.
 
-The WaVeS file is *not* stand-alone and depends upon the PuLSe file. Each pulse in the PuLSe file contains an offset into the WaVeS file to where the actual digitized samples for the relevant segments of that pulse are stored that describe the shape of the waveform in detail. The format how the waveforms are sampled is kept flexible as each pulse references a sampling description. 
+The Waves file is *not* stand-alone and depends upon the Pulse file. Each pulse in the Pulse file contains an offset into the Waves file to where the actual digitized samples for the relevant segments of that pulse are stored that describe the shape of the waveform in detail. The format how the waveforms are sampled is kept flexible as each pulse references a sampling description. 
 
-Via the GPS time the pulses in the PuLSe file and their associated WaVeS may (optionally) be linked to the discrete point returns stored in corresponding LASer files and vice-versa.
+Via the GPS time the pulses in the Pulse file and their associated Waves may (optionally) be linked to the discrete point returns stored in corresponding LASer files and vice-versa.
 
 ==============================================================================
-The PuLSe file (\*.pls)
+The Pulse file (\*.pls)
 ==============================================================================
 
-The PuLSe file is a binary file consisting of a Header, any number of optional Variable Length Records (VLRs), the Pulse Records, and one or more Appended Variable Length Records (AVLRs). All data are in little-endian format.
+The Pulse file is a binary file consisting of a Header, any number of optional Variable Length Records (VLRs), the Pulse Records, and one or more Appended Variable Length Records (AVLRs). All data are in little-endian format.
 
-The Header contains generic data such as the version of the file, creation date, the number of pulses, etc. The Variable Length Records (VLRs) and the Appended Variable Length Records (AVLRs) contain various types of additional data, most importantly the description of how the waveform are sampled and the geo-referencing information, but also additional sensor data or user defined data. The AVRLs are essentially just like the VLRs but can be appended at the end of the file. This allows, for example, to add another pulse description, correct the projection information, or include a spatial indexing data structure to an existing PuLSe file without having to re-write the entire file.
+The Header contains generic data such as the version of the file, creation date, the number of pulses, etc. The Variable Length Records (VLRs) and the Appended Variable Length Records (AVLRs) contain various types of additional data, most importantly the description of how the waveform are sampled and the geo-referencing information, but also additional sensor data or user defined data. The AVRLs are essentially just like the VLRs but can be appended at the end of the file. This allows, for example, to add another pulse description, correct the projection information, or include a spatial indexing data structure to an existing Pulse file without having to re-write the entire file.
 
-.. csv-table:: The PuLSe File Structure 
+.. csv-table:: The Pulse File Structure 
     :widths: 100
 
     "Header"
@@ -50,9 +50,9 @@ The Header contains generic data such as the version of the file, creation date,
     "Pulse Records"
     "Appended Variable Length Records (AVLRs)"
 
-The waveform samples of the pulses that are reported in the Pulse Records are stored in a separate WaVeS file that must be in the same directory and have the same base name as the *.pls file, but have the ending *.wvs. 
+The waveform samples of the pulses that are reported in the Pulse Records are stored in a separate Waves file that must be in the same directory and have the same base name as the *.pls file, but have the ending *.wvs. 
 
-.. csv-table:: The PuLSe Header
+.. csv-table:: The Pulse Header
     :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
     
@@ -90,7 +90,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Max Z", "double", "8 bytes"
     "Min Z", "double", "8 bytes"
 
-Any field in the PuLSe Header that is not required or that is not used must be zero filled.
+Any field in the Pulse Header that is not required or that is not used must be zero filled.
 
 File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesPulse" that can be checked by user software as a quick look validate the file type.
@@ -111,7 +111,7 @@ System Identifier:
   This information is ASCII data describing the hardware sensor that collected or the process that generated the pulse records in this file. If the character data is less than 31 characters, the remaining data must be null.
 
 Generating Software:
-  This information is ASCII data describing the generating software itself.  This field provides a mechanism for specifying which generating software package and version was used during PuLSe file creation (e.g. “TerraScan V-10.8”,  “REALM V-4.2”, " RiPROCESS 1.4.16.51", etc.).  If the character data is less than 31 characters, the remaining data must be null.
+  This information is ASCII data describing the generating software itself.  This field provides a mechanism for specifying which generating software package and version was used during Pulse file creation (e.g. “TerraScan V-10.8”,  “REALM V-4.2”, " RiPROCESS 1.4.16.51", etc.).  If the character data is less than 31 characters, the remaining data must be null.
 
 File Creation Day of Year:
   The day on which this file was created. Day is computed as the Greenwich Mean Time (GMT) day. January 1 is considered day 1.
@@ -120,7 +120,7 @@ File Creation Year:
   The year, expressed as a four digit number, in which the file was created.  
 
 Header Size:
-  The size, in bytes, of the PuLSe Header itself. For version 1.0 this size is 224  bytes. If the header is extended through the addition of data at the end of the header by a new revision of the PuLSe specification, the Header Size field will reflect this. 
+  The size, in bytes, of the Pulse Header itself. For version 1.0 this size is 224  bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
 
 Offset to Pulse Records:
   The actual number of bytes from the beginning of the file to the first pulse record data field.  This data offset must be updated if any software adds/removes data to/from the Variable Length Records.
@@ -138,7 +138,7 @@ Pulse Compression:
   The compression scheme used for the pulse records. In version 1.0 there is no compression and this is always 0.
 
 Pulse Record Length:
-  The size, in bytes, of the Pulse Record. All Pulse Records within a PuLSe file have the same type and hence the same length. If the specified size is larger than implied by the pulse format (e.g. 32 bytes instead of 28 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
+  The size, in bytes, of the Pulse Record. All Pulse Records within a Pulse file have the same type and hence the same length. If the specified size is larger than implied by the pulse format (e.g. 32 bytes instead of 28 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
 
 Number of Pulse Records:
   This field contains the total number of pulse records within the file.
@@ -161,7 +161,7 @@ Max and Min X, Y, Z:
 Variable Length Records (VLRs):
 ------------------------------------------------------------------------------
 
-The PuLSe Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the PuLSe Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header.  Each Variable Length Record Header is 64 bytes in length. 
+The Pulse Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the Pulse Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header.  Each Variable Length Record Header is 64 bytes in length. 
 
 .. csv-table:: Variable Length Records (VLRs)
     :header: "Item", "Format", "Size"
@@ -191,7 +191,7 @@ Description:
 Appended Variable Length Records (AVLRs):
 ------------------------------------------------------------------------------
 
-The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the PuLSe Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. 
+The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the Pulse Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. 
 
 .. csv-table:: Appended Variable Length Records (AVLRs)
     :header: "Item", "Format", "Size"
@@ -227,7 +227,7 @@ All records must be the same type. Unused attributes must be set to the equivale
     "Scan Direction", "1 bit (bit 15)", "1 bit"
 
 GPS time:
-  The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the PuLSe header.
+  The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the Pulse header.
 
 Offset to WaveSamples:
   The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled is described in the indexed "Pulse Descriptor Record".
@@ -419,9 +419,9 @@ Description:
 The Waves file (\*.wvs)
 ==============================================================================
 
-The WaVeS file (\*.wvs) is not a stand-alone file but needs a corresponding PuLSe file (\*.pls) to be meaningful. It contains the actual samples of the waveforms. Each pulse of the PuLSe file contains a reference into the WaVeS file. All data are in little-endian format.
+The Waves file (\*.wvs) is not a stand-alone file but needs a corresponding Pulse file (\*.pls) to be meaningful. It contains the actual samples of the waveforms. Each pulse of the Pulse file contains a reference into the Waves file. All data are in little-endian format.
 
-.. csv-table:: The WaVeS File Structure 
+.. csv-table:: The Waves File Structure 
     :widths: 100
 
     "Header"
@@ -432,7 +432,7 @@ The WaVeS file (\*.wvs) is not a stand-alone file but needs a corresponding PuLS
     "..."
     "WaveSamples of Pulse"
 
-.. csv-table:: The WaVeS Header
+.. csv-table:: The Waves Header
     :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
     
@@ -445,7 +445,7 @@ File Signature:
 Reserved:
   Must be zero.
 
-The header is a mostly place holder of 60 bytes to make it possible that a WaVeS file can easily be converted into a valid WDP file to accompany a LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the WaVeS file. 
+The header is a mostly place holder of 60 bytes to make it possible that a Waves file can easily be converted into a valid WDP file to accompany a LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the Waves file. 
 
 .. csv-table:: WaveSamples of Pulse
     :header: "Item", "Units", "Format", "Size"
@@ -501,7 +501,7 @@ Example
 Notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* The `PulseWaves` format is composed of a `PuLSe` and a `WaVeS` file.
+* The `PulseWaves` format is composed of a `Pulse` and a `Waves` file.
 
 * In addition to the
 
@@ -509,7 +509,7 @@ Notes
 Future Notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``PuLSe`` requires ...
+* ``Pulse`` requires ...
 
 * Knowledge of how to make ...
 
@@ -524,10 +524,10 @@ PulseWaves currently defines
   
    ::
 
-    class PuLSe
+    class Pulse
     {
     public:
-        PuLSe();
+        Pulse();
     private:
         // Magic
     };
