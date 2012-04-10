@@ -242,7 +242,7 @@ X_A, Y_A, and Z_A:
   z_{anchor} = (Z_A \* z_{scale}) + z_{offset}
 
 dx, dy, and dz:
-  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) picosecond away from the origin (e.g. towards the ground in an airborne survey).
+  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) attosecond away from the origin (e.g. towards the ground in an airborne survey).
 
 First Returning Sample:
   The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the "Sample Units" value from the corresponding "Pulse Description Record" this value allows computing the x/y/z world coordinates of the first intensity sample that was recorded for the returning waveform of this pulse:
@@ -320,7 +320,7 @@ Version:
   Must be zero.
 
 Size:
-  The byte-aligned size of attributes from Version to and including Description.
+  The byte-aligned size of attributes from "Version" to and including "Description".
 
 Offset from Optical Center to Anchor Points:
   Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
@@ -358,9 +358,9 @@ Sampling Description Records:
 
     "Version", "---", unsigned long", "4 bytes" 
     "Size", "---", "unsigned long", "4 bytes" 
-    "Bits per sample", "---", "unsigned char", "1 byte" 
-    "Bits per sample", "---", "unsigned char", "1 byte" 
-    "Bits per sample", "---", "unsigned char", "1 byte" 
+    "Bits for distance from anchor", "---", "unsigned char", "1 byte" 
+    "Bits for fractional distance", "---", "unsigned char", "1 byte" 
+    "Bits for number of samples", "---", "unsigned char", "1 byte" 
     "Bits per sample", "---", "unsigned char", "1 byte" 
     "Number of samples", "---", "unsigned long", "4 bytes"
     "Compression Options", "---", "unsigned long", "4 bytes" 
@@ -382,25 +382,34 @@ Reserved:
   Must be zero.
 
 Size:
-  The byte-aligned size of attributes from Version to and including Description.
+  The byte-aligned size of attributes from "Version" to and including "Description".
+
+Bits for distance from anchor:
+  The number of bits used to specify the distance from the anchor point to the first sample of the sampling in whole sampling units. If this number is zero the distance is always zero.
+
+Bits for fractional distance:
+  The number of bits used to specify any remaining distance to the first sample of the sampling in fractions of a sampling unit. If this number is zero there is no fractional distance.
+
+Bits for number of samples:
+  The number of bits used to specify the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
 
 Bits per sample:
   The number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
 
 Number of Samples:
-  If the number is positive it signals that a fixed sampling is used. The value of the number specifies the fixed number of samples in this sampling. If the number is negative it signals that a variable sampling is used. The absolute value of the number specifies the number of bits at the beginning of the Waves data that are used to store the variable number of samples in the sampling. In version 1.0 the only negative values that are allowed are -8 and -16 meaning that 8 or 16 bit numbers are supported.
+  If a fixed sampling is used because the "Bits for number of sample" above is zero, it specifies the number of samples in the sampling. If a variable sampling is used ecause the "Bits for number of sample" above is non-zero, it is meaningless and should be zero.
 
 Compression Options:
   Must be zero. No compression. Will later be used to specify compression options.
 
 Type:
-  This number is 0 when the sampling describes the outgoing waveform.  This number is 1 when the sampling describes a returning waveform.
+  This number is 1 when the sampling describes the outgoing waveform.  This number is 2 when the sampling describes a returning waveform.
 
 Channel:
-  This number is 0 when sampling with a single sensor. If the signal is sampled with h channels the number is between 0 and h-1.
+  This number is 0 when sampling with a single sensor. If the waveform is sampled with h channels the number is between 0 and h-1.
 
-Segment Number:
-  This number is 0 when the waveform is sampled with a single segment (on either one or multiple channels). If the outgoing (or returning) waveform is sampled with m different segments this number  is between 0 and m-1.
+Segment:
+  This number is 0 when the waveform is sampled with a single segment (on a particular channel). If the waveform is sampled with m different segments this number is between 0 and m-1.
 
 Sample Units:
   The temporal unit of spacing between subsequent samples in attoseconds (1e-18 secs). Example values might be 500,000,000, 1,000,000,000, 2,000,000,000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
