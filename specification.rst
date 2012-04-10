@@ -174,7 +174,7 @@ The Pulse Header can be followed by any number of Variable Length Records (VLRs)
     "Description", "char[32]", "32 bytes"
 
 User ID:
-  The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved. The User IDs "LASF_Spec and "LASF_Projection" from the LAS 1.4 specification are also reserved.
+  The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved. The User IDs "LASF_Spec" and "LASF_Projection" from the LAS 1.4 specification are also reserved.
 
 Record ID:
   The Record ID allows to distinuish different VLRs with the same User ID. The Record IDs for the User ID "PulseWaves_Spec" are reserved. Publicizing the meaning of a Record ID is left to the owner of the given User ID. 
@@ -186,7 +186,7 @@ Record Length after Header:
   The record length is the number of bytes for the record after the end of the standard part of the header. The entire record length is 64 bytes (the header size of the VLR) plus the Record Length after Header.
 
 Description:
-  Optional, null terminated text description of the data. Any remaining characters not used must be null.
+  Null terminated text description (optional).  Any characters not used must be null.
 
 Appended Variable Length Records (AVLRs):
 ------------------------------------------------------------------------------
@@ -451,19 +451,21 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
     
-    "Start of Sampling 0", "sample units", "short", "2 bytes"
+    "Distance from Anchor of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
+    "Fractional Distance of Sampling 0", "sample unit fractions", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 0", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 0", "-", "unsigned char[s0]", "s0 bytes"
-    "Start of Sampling 1", "sample units", "short", "2 bytes"
+    "Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Fractional Distance of Sampling 1", "sample unit fractions", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 1", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 1", "-", "unsigned char[s1]", "s1 bytes"
-    "Start of Sampling 2", "sample units", "short", "2 bytes"
+    "Distance from Anchor of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Fractional Distance of Sampling 2", "sample unit fractions", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 2", "-", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 2", "-", "unsigned char[s2]", "s2 bytes"
     "...", "...", "...", "..."		
 
-
-Start of Sampling m:
+Distance from Anchor of Sampling m:
   The temporal duration (in sampling units) from the anchor point to the first sample of sampling m. With this value you can get the x/y/z coordinate of the location that corresponds to the first sample of each sampling with:
 
   x_{sample} = x_{anchor} + start_of_sampling_m \* sample_units * dx 
