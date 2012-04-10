@@ -169,7 +169,7 @@ The PuLSe Header can be followed by any number of Variable Length Records (VLRs)
 
     "User ID", "char[16]", "16 bytes"
     "Record ID", "unsigned long", "4 bytes"
-    "Reserved[4]", "unsigned char", "4 bytes"
+    "Reserved", "unsigned long", "4 bytes"
     "Record Length After Header", "long long", "8 bytes"
     "Description", "char[32]", "32 bytes"
 
@@ -199,7 +199,7 @@ The Pulse Records are followed by Appended Variable Length Records (AVLRs). The 
 
     "User ID", "char[16]", "16 bytes"
     "Record ID", "unsigned long", "4 bytes"
-    "Reserved[4]", "unsigned char", "4 bytes"
+    "Reserved", "unsigned long", "4 bytes"
     "Record Length Before Footer", "long long", "8 bytes"
     "Description", "char[32]", "32 bytes"
 
@@ -213,7 +213,7 @@ All records must be the same type. Unused attributes must be set to the equivale
     :widths: 70, 10, 10
 
     "GPS time", "double (or long long)", "8 bytes"
-    "Offset to WaVeSamples", "long long", "8 bytes"
+    "Offset to WaveSamples", "long long", "8 bytes"
     "X_A", "long", "4 bytes"
     "Y_A", "long", "4 bytes"
     "Z_A", "long", "4 bytes"
@@ -222,15 +222,15 @@ All records must be the same type. Unused attributes must be set to the equivale
     "dz", "float", "4 bytes"
     "First Returning Sample [sampling units]", "short", "2 bytes"
     "Last Returning Sample [sampling units]", "short", "2 bytes"
-    "Index of Pulse Description Record", "14 bits (bit 0-13)", "14 bits"
+    "Index of Pulse Descriptor", "14 bits (bit 0-13)", "14 bits"
     "Edge of Flight Line", "1 bit (bit 14)", "1 bit"
     "Scan Direction", "1 bit (bit 15)", "1 bit"
 
 GPS time:
   The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the PuLSe header.
 
-Offset to WaVeSamples:
-  The offset in bytes from the start of the WaVeS file to the samples of the waveform. How the pulse is sampled is described in the indexed "Pulse Description Record".
+Offset to WaveSamples:
+  The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled is described in the indexed "Pulse Descriptor Record".
 
 X_A, Y_A, and Z_A:
   The anchor point of the pulse. Scaling and offseting the integers X_A, Y_A, and Z_A with scale and offset from the header gives the actual coordinates in world coordinates. The anchor point equals the location of the scanner's optical origin at the time the laser was fired, if the "Offset from Optical Center to Anchor Points" field of the "Pulse Description Record" is zero.
@@ -262,8 +262,8 @@ Last Returning Sample:
 
   z_{last} = z_{anchor} + last_returning_sample \* sample_units * dz
 
-Index of Pulse Description Record:
-  The record ID of the "PulseWaves_Spec" VLR or AVLR containing a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Description Record". Up to 16,384 different descriptions can be  specified.
+Index of Pulse Descriptor:
+  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor Record". Up to 16,384 different descriptions can be specified.
 
 Scan Direction Flag:
   This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction or as long as they are reflected from the same mirror facet of the scanner. It flips whenever the mirror direction or the facet changes.
@@ -275,7 +275,7 @@ Edge of Flight Line:
 Defined Variable Length Records (VLRs or AVLRs):
 ------------------------------------------------------------------------------
 
-The "LASF_Projection" VLR from LAS 1.4 can be used to geo-reference the pulse file. The "LASF_Proj" VLR "Extra Bytes" from LAS 1.4 can be used to specify extra attributes per pulse.
+The same mechanism described for the "LASF_Projection" VLR of the LAS 1.4 specification can be used to geo-reference the pulse file. The same mechanism described for the "LASF_Proj" VLR "Extra Bytes" of the LAS 1.4 specification can be used to specify extra attributes per pulse.
 
 First Appended Variable Length Record:
 ------------------------------------------------------------------------------
@@ -295,33 +295,32 @@ User ID: 	                    PulseWaves_Spec
 
 Record ID: 	                    n (where 100,000 <= n < 116,384)
 
-The Pulse Description Records describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc.
+The Pulse Description Record describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc.
 
-.. csv-table:: Pulse Description Record 
+.. csv-table:: Pulse Descriptor Record 
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "-", "unsigned char", "1 byte"
-    "Reserved", "-", "unsigned char[7]", "7 bytes"
+    "Version", "-", "unsigned long", "4 bytes"
+    "Size", "-", "unsigned long", "4 bytes"
     "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
     "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
-    "Offset To Sampling Description Array", "[bytes]", "unsigned long", "4 bytes"
-    "Number of Sampling Descriptions", "-", "unsigned long", "4 bytes"
-    "Size of Sampling Description Records", "[bytes]", "unsigned long", "4 bytes"
-    "Description", "-", "char[32]", "32 bytes"
-    "Laser Scanner ID", "-", "unsigned long", "4 bytes"
-    "Wavelength of Laser", "[nanometer]", "unsigned long", "4 bytes"
+    "Number of Samplings", "-", "unsigned long", "4 bytes"
+    "Scanner ID", "-", "unsigned long", "4 bytes"
+    "Wavelength", "[picometer]", "unsigned long", "4 bytes"
     "Outgoing Pulse Width", "[picometer]", "unsigned long", "4 bytes"
     "Beam Diameter at Exit Aperture", "[micrometers]", "unsigned long", "4 bytes"
     "Beam Divergance", "[microradians]", "unsigned long", "4 bytes"
-    "Unused", "-", "char[4]", "4 bytes"
-    "Sampling Description Records[n]", "-", "struct of size m", "n*m bytes"
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "Description", "-", "char[32]", "32 bytes"
 
 Version:
   Must be zero.
 
-Reserved:
-  Must be zero.
+Size:
+  The byte-aligned size of attributes from Version to and including Description.
 
 Offset from Optical Center to Anchor Points:
   Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
@@ -329,23 +328,14 @@ Offset from Optical Center to Anchor Points:
 Sample Units:
   Specifies the temporal unit of sampling in attoseconds (1e-18 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond are 1,000,000,000 attoseconds and 499.75 picoseconds are 499,750,000 attoseconds.
 
-Offset to Sampling Description Array:
-  The offset in bytes from the start of the Pulse Description Record to the first "Sampling Description Record" of the "Sampling Description Records[n]" array. PulseWaves readers should use this value to seek to the first "Sampling Description Record" of the "Sampling Description Records [n]" array because later versions of the PulseWaves specification may insert additional fields after "Beam Divergence".
-
-Number of Sampling Descriptions:
+Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" start at the byte indicated by the "Offset to Samplings Array" field. 
 
-Size of Sampling Description Records:
-  A value that specifies the size of each of the "Sampling Description Records" that start at the byte indicated by "Offset to Sampling Description Array" field.  PulseWaves readers should use this value to seek forward to the next "Sampling Description Record" as later versions of the PulseWaves specification may enlarge each "Sampling Description Record" by adding new fields at the end.
-
-Description:
-  Optional, null terminated text description of the data.  Any remaining characters not used must be null.
-
-Laser Scanner ID:
+Scanner ID:
   In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
 
-Wavelength of Laser:
-  The physical wavelength of the laser in nanometers.
+Wavelength:
+  The physical wavelength of the laser in picometers.
 
 Outgoing Pulse Width:
   The width of the outgoing pulse in picometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
@@ -356,12 +346,8 @@ Beam Diameter at Exit Aperture:
 Beam Divergance:
   The divergance of the laser beam in microradians [urad] @ 1/e2. [or should we use @ 1/e]?
 
-Unused:
-  Must be zero.
-
-Sampling Description Records:
-  An array of Sampling Description Records as described in Table XXX.
-
+Description:
+  Null terminated text description of the data (optional).  Any characters not used must be null.
 
 Sampling Description Records:
 ------------------------------------------------------------------------------
