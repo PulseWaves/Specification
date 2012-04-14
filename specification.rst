@@ -242,7 +242,7 @@ X_A, Y_A, and Z_A:
   z_{anchor} = (Z_A \* z_{scale}) + z_{offset}
 
 dx, dy, and dz:
-  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) attosecond away from the origin (e.g. towards the ground in an airborne survey).
+  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) nanosecond away from the origin (e.g. towards the ground in an airborne survey).
 
 First Returning Sample:
   The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the "Sample Units" value from the corresponding "Pulse Description Record" this value allows computing the x/y/z world coordinates of the first intensity sample that was recorded for the returning waveform of this pulse:
@@ -304,7 +304,7 @@ The Pulse Description Record describes the scanner system that the pulse origina
     "Version", "---", "unsigned long", "4 bytes"
     "Size", "---", "unsigned long", "4 bytes"
     "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
-    "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
+    "Sample Units", "[nanoseconds]", "double", "8 bytes"
     "Number of Samplings", "---", "unsigned long", "4 bytes"
     "Scanner ID", "---", "unsigned long", "4 bytes"
     "Wavelength", "[picometer]", "unsigned long", "4 bytes"
@@ -326,7 +326,7 @@ Offset from Optical Center to Anchor Points:
   Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
 
 Sample Units:
-  Specifies the temporal unit of sampling in attoseconds (1e-18 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond are 1,000,000,000 attoseconds and 499.75 picoseconds are 499,750,000 attoseconds.
+  Specifies the temporal unit of sampling in nanoseconds (1e-9 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond are 1,000 picoseconds.
 
 Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" start at the byte indicated by the "Offset to Samplings Array" field. 
@@ -359,7 +359,7 @@ Sampling Description Records:
     "Version", "---", unsigned long", "4 bytes" 
     "Size", "---", "unsigned long", "4 bytes" 
     "Bits for distance from anchor", "---", "unsigned char", "1 byte" 
-    "Bits for fractional distance", "---", "unsigned char", "1 byte" 
+    "Number of decimal digits", "---", "unsigned char", "1 byte" 
     "Bits for number of samples", "---", "unsigned char", "1 byte" 
     "Bits per sample", "---", "unsigned char", "1 byte" 
     "Number of samples", "---", "unsigned long", "4 bytes"
@@ -367,7 +367,7 @@ Sampling Description Records:
     "Type", "---", "unsigned char", "1 byte" 
     "Channel", "---", "unsigned char", "1 byte" 
     "Segment", "---", "unsigned short", "2 byte" 
-    "Sample Units", "[attosecond  (1e-18 secs)]", "long long", "8 bytes"
+    "Sample Units", "[nanosecond]", "double", "8 bytes"
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
     "...", "...", "...", "..."
@@ -385,10 +385,10 @@ Size:
   The byte-aligned size of attributes from "Version" to and including "Description".
 
 Bits for distance from anchor:
-  The number of bits used to specify the distance from the anchor point to the first sample of the sampling in whole sampling units. If this number is zero the distance is always zero.
+  The number of bits is used to specify how many bits are used to store the temporal distance from the anchor point to the first sample of the sampling in sampling units. If this number is zero the distance is always zero.
 
-Bits for fractional distance:
-  The number of bits used to specify any remaining distance to the first sample of the sampling in fractions of a sampling unit. If this number is zero there is no fractional distance.
+Number of decimal digits:
+  The number of decimal digits is used to specify the precision of the distances from the anchor point. It says many of the right-most digits of the distances are to the right of the decimal point. For example, if this number is 2 then all integer numbers storing the distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
 
 Bits for number of samples:
   The number of bits used to specify the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
@@ -412,7 +412,7 @@ Segment:
   This number is 0 when the waveform is sampled with a single segment (on a particular channel). If the waveform is sampled with m different segments this number is between 0 and m-1.
 
 Sample Units:
-  The temporal unit of spacing between subsequent samples in attoseconds (1e-18 secs). Example values might be 500,000,000, 1,000,000,000, 2,000,000,000 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
+  Specifies the temporal unit of spacing between subsequent samples in nanoseconds (1e-9 seconds) . Example values might be 0.5, 1.0, 2.0 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
 
 Digitizer Gain:
   The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
@@ -460,33 +460,25 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
     
-    "Distance from Anchor of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
-    "Fractional Distance of Sampling 0", "sample unit fractions", "bits", "0, 8, or 16 bits"
+    "Scaled Distance from Anchor of Sampling 0", "scaled sample units", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 0", "---", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
-    "Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
-    "Fractional Distance of Sampling 1", "sample unit fractions", "bits", "0, 8, or 16 bits"
+    "Scaled Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 1", "---", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
-    "Distance from Anchor of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
-    "Fractional Distance of Sampling 2", "sample unit fractions", "bits", "0, 8, or 16 bits"
+    "Scaled Distance from Anchor of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 2", "---", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
     "...", "...", "...", "..."		
 
-Distance from Anchor of Sampling m:
-  This field only exists if the number of "bits for distance from anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in whole sampling units. There may be a remaining fractional distance if the distance between anchor point and first sample is not an integer multiple of the sampling unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling.
+Scaled distance from Anchor of Sampling m:
+  This field only exists if the number of "bits for distance from anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in (possibly scaled) sampling units. Depending on the value of the corresponding "Number of decimal digits" field this number may need to be scaled by 0.1 or 0.01 to obtain the actual distances. If the "Number of decimal digits" field iz zero the distances between the anchor point and the first sample can only be an integer multiple of the sampling unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling. The distance determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
 
-Fractional Distance of Sampling m:
-  This field only exists if the number of "bits for fractional distance" in the corresponding sampling description record is non-zero. It then specifies any remaining distance from the anchor point to the first sample of sampling m in fractions of one sampling unit (i.e. in fractions of 1/256th or 1/65536th of a sampling unit). If the number of "bits for fractional distance" in the corresponding sampling description is zero then the fractional distance is zero and the distance between anchor point and the first sample of the sampling is an integer multiple.
+  x_{sample} = x_{anchor} + distance_from_anchor \* sample_units * dx 
 
-  The two distances determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
+  y_{sample} = y_{anchor} + distance_from_anchor \* sample_units * dy 
 
-  x_{sample} = x_{anchor} + (distance_from_anchor + fractional_distance) \* sample_units * dx 
-
-  y_{sample} = y_{anchor} + (distance_from_anchor + fractional_distance) \* sample_units * dy 
-
-  z_{sample} = z_{anchor} + (distance_from_anchor + fractional_distance) \* sample_units * dz
+  z_{sample} = z_{anchor} + distance_from_anchor \* sample_units * dz
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled by the sample units again and again.
 
