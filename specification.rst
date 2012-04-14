@@ -230,7 +230,7 @@ GPS time:
   The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the Pulse header.
 
 Offset to WaveSamples:
-  The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled is described in the indexed "Pulse Descriptor Record".
+  The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the indexed "Pulse Descriptor".
 
 X_A, Y_A, and Z_A:
   The anchor point of the pulse. Scaling and offseting the integers X_A, Y_A, and Z_A with scale and offset from the header gives the actual coordinates in world coordinates. The anchor point equals the location of the scanner's optical origin at the time the laser was fired, if the "Offset from Optical Center to Anchor Points" field of the "Pulse Description Record" is zero.
@@ -263,7 +263,7 @@ Last Returning Sample:
   z_{last} = z_{anchor} + last_returning_sample \* sample_units * dz
 
 Index of Pulse Descriptor:
-  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor Record". Up to 16,384 different descriptions can be specified.
+  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 16,384 different descriptors can be specified. A pulse descriptor consist of a "Pulse Description Record" followed by a variable number "Sampling Description Records".
 
 Scan Direction Flag:
   This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction or as long as they are reflected from the same mirror facet of the scanner. It flips whenever the mirror direction or the facet changes.
@@ -288,16 +288,16 @@ Record Length Before Footer:    0
 
 This empty AVLR record *MUST* directly follow the pulse records and it must be the first AVLR in case there are multiple AVLRs. It does not carry a payload but is used to mark the end of the appendable list of AVLRs. This is needed as the exact number of AVLRs may not be specified in the header and needs to be discovered by parsing all AVLRs starting at the end of the file until this one is readed. This Record ID makes no sense when used with an VLR. 
 
-Pulse Description Records:
+Pulse Descriptor:
 ------------------------------------------------------------------------------
 
 User ID: 	                    PulseWaves_Spec
 
 Record ID: 	                    n (where 100,000 <= n < 116,384)
 
-The Pulse Description Record describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc.
+The Pulse Descriptor describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Pulse Description Record" that is immediately followed by a variable number of "Sampling Description Records".
 
-.. csv-table:: Pulse Descriptor Record 
+.. csv-table:: Pulse Description Record 
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
@@ -326,7 +326,7 @@ Offset from Optical Center to Anchor Points:
   Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
 
 Sample Units:
-  Specifies the temporal unit of sampling in nanoseconds (1e-9 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond are 1,000 picoseconds.
+  Specifies the temporal unit of sampling in nanoseconds (1e-9 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond is 1,000 picoseconds.
 
 Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" start at the byte indicated by the "Offset to Samplings Array" field. 
@@ -384,11 +384,11 @@ Reserved:
 Size:
   The byte-aligned size of attributes from "Version" to and including "Description".
 
-Bits for distance from anchor:
+Bits for scaled distance from anchor:
   The number of bits is used to specify how many bits are used to store the temporal distance from the anchor point to the first sample of the sampling in sampling units. If this number is zero the distance is always zero.
 
 Number of decimal digits:
-  The number of decimal digits is used to specify the precision of the distances from the anchor point. It says many of the right-most digits of the distances are to the right of the decimal point. For example, if this number is 2 then all integer numbers storing the distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
+  The number of decimal digits is used to specify the precision of the distances from the anchor point. It defines how many of the right-most digits of the scaled distance values that are stores are to be moved to the right of the decimal point. For example, if this number is 2 then all integer numbers storing the scaled distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
 
 Bits for number of samples:
   The number of bits used to specify the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
