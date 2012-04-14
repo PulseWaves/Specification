@@ -385,16 +385,16 @@ Size:
   The byte-aligned size of attributes from "Version" to and including "Description".
 
 Bits for scaled distance from anchor:
-  The number of bits is used to specify how many bits are used to store the temporal distance from the anchor point to the first sample of the sampling in sampling units. If this number is zero the distance is always zero.
+  Specifies how many bits are used in the Waves file to store the integers that express the (optionally scaled) temporal distance from the anchor point to the first sample of the sampling in sampling units. In case the number of bits is zero the distance between anchor point to the first sample must also be zero.
 
 Number of decimal digits:
-  The number of decimal digits is used to specify the precision of the distances from the anchor point. It defines how many of the right-most digits of the scaled distance values that are stores are to be moved to the right of the decimal point. For example, if this number is 2 then all integer numbers storing the scaled distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
+  Specifies the scale (or the precision) of the numbers that store the temporal distances from the anchor point to the first sample of the sampling in sampling units. It defines how many of the right-most digits of the scaled distance values that are stored need to be moved to the right of the decimal point. For example, if the number of digital digits is 2 then all integer numbers storing the scaled distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
 
 Bits for number of samples:
-  The number of bits used to specify the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
+  Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
 
 Bits per sample:
-  The number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
+  Specifies the number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
 
 Number of Samples:
   If a fixed sampling is used because the "Bits for number of sample" above is zero, it specifies the number of samples in the sampling. If a variable sampling is used ecause the "Bits for number of sample" above is non-zero, it is meaningless and should be zero.
