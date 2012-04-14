@@ -460,7 +460,7 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
     
-    "Scaled Distance from Anchor of Sampling 0", "scaled sample units", "bits", "0, 8, or 16 bits"
+    "Scaled Distance from Anchor of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
     "Number of Samples in Sampling 0", "---", "bits", "0, 8, or 16 bits"
     "Samples of Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
     "Scaled Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
