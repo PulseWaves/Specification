@@ -10,10 +10,10 @@
 
 Date: 
 
-draft created on Dec 23th, 2011
+initial draft created on Dec 23th, 2011
 
 ***************************************************************************************
- PulseWaves - Full Waveform LiDAR Specification (version 0.1)
+ PulseWaves - Full Waveform LiDAR Specification (version 0.0)
 ***************************************************************************************
 
 .. class:: heading4
@@ -57,8 +57,8 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     :widths: 70, 10, 10
     
     "File Signature (“PulseWavesPulse”)", "char[16]", "16 bytes"
-    "Scan Number", "unsigned long", "4 bytes"
     "Global Parameters", "unsigned long", "4 bytes"
+    "Scan ID", "unsigned long", "4 bytes"
     "Project ID - GUID data 1", "unsigned long", "4 bytes"
     "Project ID - GUID data 2", "unsigned short", "2 bytes"
     "Project ID - GUID data 3", "unsigned short", "2 bytes"
@@ -101,17 +101,14 @@ Any field in the Pulse Header that is not required or that is not used must be z
 File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesPulse" that can be checked by user software as a quick look validate the file type.
 
-Scan Number:
-  If this file contains the pulses from a single scan, this field should contain a flight line number, a drive path ID, or a scan site identifier.
-
 Global Parameters:
   This is a bit field used to specify certain global properties about the file.
 
-Project ID (GUID data):
-  These four fields describe a Globally Unique Identifier (GUID) for use as a Project Identifier (Project ID). These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a File Source ID for every file within the project, every pulse can be uniquely identified.
+Scan ID:
+  If this file contains the pulses from a single scan, this field should contain the flight line number, the drive path ID, or the scan site identifier.
 
-Version Number:
-  The version number consists of a major and minor field. All minor versions of the same major version will be fully forward and backward compatible.
+Project ID (GUID data):
+  These four fields describe a Globally Unique IDentifier (GUID) to identify a project. These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a unique Scan ID for every scan of the project, every pulse can be uniquely identified.
 
 System Identifier:
   This information is ASCII data describing the hardware sensor that collected or the process that generated the pulse records in this file. If the character data is less than 31 characters, the remaining data must be null.
@@ -124,6 +121,9 @@ File Creation Day of Year:
 
 File Creation Year:
   The year, expressed as a four digit number, in which the file was created.  
+
+Version Number:
+  The version number consists of a major and minor field. All minor versions of the same major version will be fully forward and backward compatible.
 
 Header Size:
   The size, in bytes, of the Pulse Header itself. For version 1.0 this size is 288 bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
@@ -325,7 +325,7 @@ User ID: 	                    PulseWaves_Spec
 
 Record ID: 	                    n (where 100,000 <= n < 116,384)
 
-The Pulse Descriptor describes the scanner system that the pulse originates from and the sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Pulse Description Record" that is immediately followed by a variable number of "Sampling Description Records".
+The Pulse Descriptor describes the scanner system that the pulse originates from and the (optionally segmented) sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Pulse Description Record" that is immediately followed by a variable number of "Sampling Description Records" that allow a very flexible description of segmentings and samplings of the waveforms with one or multiple sensors.
 
 .. csv-table:: Pulse Description Record 
     :header: "Item", "Unit", "Format", "Size"
