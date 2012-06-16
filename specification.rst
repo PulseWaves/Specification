@@ -141,10 +141,10 @@ Pulse Size:
   The size, in bytes, of the pulse record. All pulse records within a pulse file have the same format and the same size. If the specified size is larger than implied by the pulse format (e.g. 50 bytes instead of 48 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
 
 Pulse Compression:
-  The compression scheme used for the pulse records. In version 1.0 there is no compression and this is always 0.
+  The compression scheme used for the pulses. In version 1.0 there is no compression and this is always 0.
 
 Pulse Options:
-  Potential future options for the pulse records. In version 1.0 this is always 0.
+  Potential future options. In version 1.0 this is always 0.
 
 Reserved:
   Must be zero.
@@ -333,14 +333,17 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
 
     "Version", "---", "unsigned long", "4 bytes"
     "Size", "---", "unsigned long", "4 bytes"
-    "Offset from Optical Center to Anchor Points", "[picoseconds]", "long long", "8 bytes"
-    "Sample Units", "[nanoseconds]", "double", "8 bytes"
-    "Number of Samplings", "---", "unsigned long", "4 bytes"
+    "Optical Center to Anchor Point", "[sampling units]", "long", "4 bytes"
+    "Bits for Distance from Optical", "", "unsigned char", "1 byte"
+    "Decimal Digits of Distance", "", "unsigned char", "1 byte"
+    "Number of Samplings", "---", "unsigned short", "2 bytes"
+    "Sample Units", "[nanoseconds]", "float", "4 bytes"
     "Scanner ID", "---", "unsigned long", "4 bytes"
-    "Wavelength", "[picometer]", "unsigned long", "4 bytes"
-    "Outgoing Pulse Width", "[picometer]", "unsigned long", "4 bytes"
-    "Beam Diameter at Exit Aperture", "[micrometers]", "unsigned long", "4 bytes"
-    "Beam Divergance", "[microradians]", "unsigned long", "4 bytes"
+    "Wavelength", "[nanometer]", "float", "4 bytes"
+    "Outgoing Pulse Width", "[nanometer]", "float", "4 bytes"
+    "Beam Diameter at Exit Aperture", "[millimeters]", "float", "4 bytes"
+    "Beam Divergance", "[milliradians]", "float", "4 bytes"
+    "Reserved", "---", "unsigned long", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -352,29 +355,38 @@ Version:
 Size:
   The byte-aligned size of attributes from "Version" to and including "Description".
 
-Offset from Optical Center to Anchor Points:
-  Specifies a constant temporal offset in picoseconds between the optical center and the anchor point. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is  0xFFFFFFFFFFFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant mutliple of the direction vector.
+Optical Center to Anchor Point:
+  This value specifies the constant temporal offset in sampling units from the optical center to the anchor point - given such a constant exists. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is 0x8FFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant multiple of the direction vector but the distance may be specified for each anchor point individually.
 
-Sample Units:
-  Specifies the temporal unit of sampling in nanoseconds (1e-9 seconds) that is used in the Pulse Records for specifying the "First Returning Sample" and the "Last Returning Sample". One nanosecond is 1,000 picoseconds.
+Bits for Distance to Optical:
+  If this value is non-zero then there is information in the Waves file about the temporal offset in sampling units from the optical center to the anchor point. The only supported non-zero values are 16, and 32 bits. In this case the first two or four bytes of the waveform data in the Waves file store this offset.
+
+Decimal Digits of Distance:
+  If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2).
 
 Number of Samplings:
-  A value larger than 0 specifying the number of "Sampling Description Records" start at the byte indicated by the "Offset to Samplings Array" field. 
+  A value larger than 0 specifying the number of "Sampling Description Records" that directly follow this "Pulse Description Record".
+
+Sample Units:
+  Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Description Records" then the shortest one is specified here.
 
 Scanner ID:
   In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
 
 Wavelength:
-  The physical wavelength of the laser in picometers.
+  The physical wavelength of the laser in nanometers.
 
 Outgoing Pulse Width:
-  The width of the outgoing pulse in picometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
+  The width of the outgoing pulse in nanometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
 
 Beam Diameter at Exit Aperture:
-  The diameter of the laser beam in micrometer in the moment it leaves the scanner hardware.
+  The diameter of the laser beam in millimeter in the moment it leaves the scanner hardware.
 
 Beam Divergance:
-  The divergance of the laser beam in microradians [urad] @ 1/e2. [or should we use @ 1/e]?
+  The divergance of the laser beam in milliradians [urad] @ 1/e2. [or should we use @ 1/e]?
+
+Reserved:
+  Must be zero.
 
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
@@ -388,16 +400,18 @@ Sampling Description Records:
 
     "Version", "---", unsigned long", "4 bytes" 
     "Size", "---", "unsigned long", "4 bytes" 
-    "Bits for distance from anchor", "---", "unsigned char", "1 byte" 
-    "Number of decimal digits", "---", "unsigned char", "1 byte" 
-    "Bits for number of samples", "---", "unsigned char", "1 byte" 
-    "Bits per sample", "---", "unsigned char", "1 byte" 
-    "Number of samples", "---", "unsigned long", "4 bytes"
-    "Compression Options", "---", "unsigned long", "4 bytes" 
     "Type", "---", "unsigned char", "1 byte" 
     "Channel", "---", "unsigned char", "1 byte" 
-    "Segment", "---", "unsigned short", "2 byte" 
-    "Sample Units", "[nanosecond]", "double", "8 bytes"
+    "Bits for Distance from Anchor", "---", "unsigned char", "1 byte" 
+    "Decimal Digits in Distance", "---", "unsigned char", "1 byte" 
+    "Bits for Number of Segments", "---", "unsigned char", "1 byte" 
+    "Bits for Number of Samples", "---", "unsigned char", "1 byte" 
+    "Number of Segments", "---", "unsigned short", "2 bytes"
+    "Number of Samples", "---", "unsigned long", "4 bytes"
+    "Bits per Sample", "---", "unsigned short", "2 byte" 
+    "Compression", "---", "unsigned short", "2 bytes" 
+    "Options", "---", "unsigned short", "2 bytes" 
+    "Sample Units", "[nanosecond]", "float", "4 bytes"
     "Digitizer Gain", "[Volt]", "double", "8 bytes"
     "Digitizer Offset", "[Volt]", "double", "8 bytes"
     "...", "...", "...", "..."
@@ -408,29 +422,8 @@ Sampling Description Records:
 Version:
   Must be zero.
 
-Reserved:
-  Must be zero.
-
 Size:
   The byte-aligned size of attributes from "Version" to and including "Description".
-
-Bits for scaled distance from anchor:
-  Specifies how many bits are used in the Waves file to store the integers that express the (optionally scaled) temporal distance from the anchor point to the first sample of the sampling in sampling units. In case the number of bits is zero the distance between anchor point to the first sample must also be zero.
-
-Number of decimal digits:
-  Specifies the scale (or the precision) of the numbers that store the temporal distances from the anchor point to the first sample of the sampling in sampling units. It defines how many of the right-most digits of the scaled distance values that are stored need to be moved to the right of the decimal point. For example, if the number of digital digits is 2 then all integer numbers storing the scaled distances to anchor point need to be multiplied by 0.01 to move the two right-most digits right of the decimal point. If this number is zero then all temporal distances must be integer multiples of the sample units.
-
-Bits for number of samples:
-  Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the number of samples is fixed and specified by the "Number of Samples" below.
-
-Bits per sample:
-  Specifies the number of bits used to store each sample. Common values are either 8 or 16 bits which are the only two values supported in version 1.0.
-
-Number of Samples:
-  If a fixed sampling is used because the "Bits for number of sample" above is zero, it specifies the number of samples in the sampling. If a variable sampling is used ecause the "Bits for number of sample" above is non-zero, it is meaningless and should be zero.
-
-Compression Options:
-  Must be zero. No compression. Will later be used to specify compression options.
 
 Type:
   This number is 1 when the sampling describes the outgoing waveform.  This number is 2 when the sampling describes a returning waveform.
@@ -438,8 +431,35 @@ Type:
 Channel:
   This number is 0 when sampling with a single sensor. If the waveform is sampled with h channels the number is between 0 and h-1.
 
-Segment:
-  This number is 0 when the waveform is sampled with a single segment (on a particular channel). If the waveform is sampled with m different segments this number is between 0 and m-1.
+Bits for Distance from Anchor:
+  Specifies how many bits are used in the Waves file to store the integers that express distance from the anchor point to the first sample of each segment in sample units. In case the number of bits is zero the distance between anchor point to the first sample must be zero and there should only be one segment. The only non-zero values supported in version 1.0 are 8 or 16 bits.
+
+Decimal Digits in Distance:
+   Specifies the fractional precision of the numbers that store the distances from the anchor point in sample units. If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
+
+Bits for number of segments:
+  Specifies the number of bits used to store the number of segments in the sampling in case segmenting is variable. If this number is zero the segmenting is fixed and specified by the "Number of Segments" field below. The only non-zero values supported in version 1.0 are 8 or 16 bits.
+
+Bits for number of samples:
+  Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the sampling is fixed and specified by the "Number of Samples" below.  The only non-zero values supported in version 1.0 are 8 or 16 bits.
+
+Number of decimal digits:
+
+
+Number of Segments:
+  If a fixed segmenting is used because the "Bits for Number of Segments" above is zero, this field specifies the number of segments in the segmenting. If a variable segmenting is used because the "Bits for Number of Segments" above is non-zero, this field is meaningless and should be zero.
+
+Number of Samples:
+  If a fixed sampling is used because the "Bits for Number of Samples" above is zero, this field specifies the number of samples in the sampling. If a variable sampling is used because the "Bits for Number of Samples" above is non-zero, this field is meaningless and should be zero.
+
+Bits per sample:
+  Specifies the number of bits used to store each sample.
+
+Compression:
+  The compression scheme used for the samples. In version 1.0 there is no compression and this is always 0.
+
+Options:
+  Potential future options. In version 1.0 this is always 0.
 
 Sample Units:
   Specifies the temporal unit of spacing between subsequent samples in nanoseconds (1e-9 seconds) . Example values might be 0.5, 1.0, 2.0 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
@@ -490,29 +510,37 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
     
-    "Scaled Distance from Anchor of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 0", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
-    "Scaled Distance from Anchor of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 1", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
-    "Scaled Distance from Anchor of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples in Sampling 2", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
+    "Number of Segments in Sampling 0", "---", "bits", "0, 8, or 16 bits"
+    "Distance from Anchor of Segment 0 in Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples of Segment 0 in Sampling 0", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 in Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
+    "...", "...", "...", "..."		
+    "...", "...", "...", "..."
+    "Number of Segments in Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Distance from Anchor of Segment 0 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples of Segment 0 in Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 in Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
+    "...", "...", "...", "..."		
+    "...", "...", "...", "..."
+    "Number of Segments in Sampling 2", "---", "bits", "0, 8, or 16 bits"
+    "Distance from Anchor of Segment 0 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples of Segment 0 in Sampling 2", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 in Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
+    "...", "...", "...", "..."		
     "...", "...", "...", "..."		
 
-Scaled distance from Anchor of Sampling m:
-  This field only exists if the number of "bits for distance from anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in (possibly scaled) sampling units. Depending on the value of the corresponding "Number of decimal digits" field this number may need to be scaled by 0.1 or 0.01 to obtain the actual distances. If the "Number of decimal digits" field iz zero the distances between the anchor point and the first sample can only be an integer multiple of the sampling unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling. The distance determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
+Distance from Anchor of Segment k in Sampling m:
+  This field only exists if the number of "Bits for Distance from Anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in (possibly scaled) sample units. Depending on the value of the corresponding "Number of decimal digits" field this number may need to be scaled by 0.1 or 0.01 to obtain the actual distances. If the "Number of decimal digits" field iz zero the distances between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling. The distance determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
 
-  x_{sample} = x_{anchor} + distance_from_anchor \* sample_units * dx 
+  x_{sample} = x_{anchor} + distance_from_anchor \* dx 
 
-  y_{sample} = y_{anchor} + distance_from_anchor \* sample_units * dy 
+  y_{sample} = y_{anchor} + distance_from_anchor \* dy 
 
-  z_{sample} = z_{anchor} + distance_from_anchor \* sample_units * dz
+  z_{sample} = z_{anchor} + distance_from_anchor \* dz
 
-  while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled by the sample units again and again.
+  while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled again and again.
 
-  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes obvioulsy, if anchor point and origin are identical (i.e. if the "Offset from Optical Center to Anchor Points" is zero).
+  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes, if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
 
 Number of Samples in Sampling m:
   This field only exists if the number of "bits for number of samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples that are following and the waveform has a "variable sampling". If the number of "bits for number of samples" in the corresponding sampling description is zero the "number of samples" is specified in the sampling description and the waveform has a "fixed sampling".
@@ -526,12 +554,6 @@ Samples of Sampling m:
 
    An illustration of a typical Pulse Description VLR.
 
-The rest of the document is gibberish ...
-------------------------------------------------------------------------------
-
-`PulseWaves`_ is a 
-
-Example
 ..............................................................................
 
 
@@ -541,14 +563,6 @@ Notes
 * The `PulseWaves` format is composed of a `Pulse` and a `Waves` file.
 
 * In addition to the
-
-
-Future Notes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* ``Pulse`` requires ...
-
-* Knowledge of how to make ...
 
 Example Formatting
 ------------------------------------------------------------------------------
