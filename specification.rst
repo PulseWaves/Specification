@@ -57,8 +57,8 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     :widths: 70, 10, 10
     
     "File Signature (“PulseWavesPulse”)", "char[16]", "16 bytes"
-    "File Source ID", "unsigned long", "4 bytes"
-    "Global Encoding", "unsigned long", "4 bytes"
+    "Scan Number", "unsigned long", "4 bytes"
+    "Global Parameters", "unsigned long", "4 bytes"
     "Project ID - GUID data 1", "unsigned long", "4 bytes"
     "Project ID - GUID data 2", "unsigned short", "2 bytes"
     "Project ID - GUID data 3", "unsigned short", "2 bytes"
@@ -70,36 +70,42 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Version Major", "unsigned char", "1 byte"
     "Version Minor", "unsigned char", "1 byte"
     "Header Size", "unsigned short", "2 bytes"
-    "Offset to Pulse Records", "long long", "8 bytes"
+    "Offset to Pulse Data", "long long", "8 bytes"
+    "Number of Pulses", "long long", "8 bytes"
+    "Pulse Format", "unsigned short", "2 bytes"
+    "Pulse Size", "unsigned long", "4 bytes"
+    "Pulse Compression", "unsigned long", "4 bytes"
+    "Pulse Options", "unsigned long", "4 bytes"
+    "Reserved", "long long", "8 bytes"
     "Number of Variable Length Records", "unsigned long", "4 bytes"
     "Number of Appended Variable Length Records", "long", "4 bytes"
-    "Pulse Format", "unsigned short", "2 bytes"
-    "Pulse Compression", "unsigned short", "2 bytes"
-    "Pulse Record Size", "unsigned long", "4 bytes"
-    "Number of Pulse Records", "long long", "8 bytes"
+    "T Scale Factor", "double", "8 bytes"
+    "T Offset", "double", "8 bytes"
+    "Min T", "long long", "8 bytes"
+    "Max T", "long long", "8 bytes"
     "X Scale Factor", "double", "8 bytes"
     "Y Scale Factor", "double", "8 bytes"
     "Z Scale Factor", "double", "8 bytes"
     "X Offset", "double", "8 bytes"
     "Y Offset", "double", "8 bytes"
     "Z Offset", "double", "8 bytes"
-    "Max X", "double", "8 bytes"
     "Min X", "double", "8 bytes"
-    "Max Y", "double", "8 bytes"
+    "Max X", "double", "8 bytes"
     "Min Y", "double", "8 bytes"
-    "Max Z", "double", "8 bytes"
+    "Max Y", "double", "8 bytes"
     "Min Z", "double", "8 bytes"
+    "Max Z", "double", "8 bytes"
 
 Any field in the Pulse Header that is not required or that is not used must be zero filled.
 
 File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesPulse" that can be checked by user software as a quick look validate the file type.
 
-File Source ID:
-  If this file contains the pulses from an original flight line this field should contain the flight line number. A value of zero (0) is interpreted to mean that an ID has not been assigned. 
+Scan Number:
+  If this file contains the pulses from a single scan, this field should contain a flight line number, a drive path ID, or a scan site identifier.
 
-Global Encoding:
-  This is a bit field used to indicate certain global properties about the file.
+Global Parameters:
+  This is a bit field used to specify certain global properties about the file.
 
 Project ID (GUID data):
   These four fields describe a Globally Unique Identifier (GUID) for use as a Project Identifier (Project ID). These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a File Source ID for every file within the project, every pulse can be uniquely identified.
@@ -120,10 +126,28 @@ File Creation Year:
   The year, expressed as a four digit number, in which the file was created.  
 
 Header Size:
-  The size, in bytes, of the Pulse Header itself. For version 1.0 this size is 224  bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
+  The size, in bytes, of the Pulse Header itself. For version 1.0 this size is 288 bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
 
-Offset to Pulse Records:
-  The actual number of bytes from the beginning of the file to the first pulse record data field.  This data offset must be updated if any software adds/removes data to/from the Variable Length Records.
+Offset to Pulse Data:
+  The actual number of bytes from the beginning of the file to the first pulse record data field. For version 1.0 this size is at least 288 bytes. This data offset must be updated if any software adds/removes data to/from the Variable Length Records.
+
+Number of Pulses:
+  This field contains the total number of pulse records within the file.
+
+Pulse Format:
+  The format of the pulse records. In version 1.0 this is always 0.
+
+Pulse Size:
+  The size, in bytes, of the pulse record. All pulse records within a pulse file have the same format and the same size. If the specified size is larger than implied by the pulse format (e.g. 50 bytes instead of 48 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
+
+Pulse Compression:
+  The compression scheme used for the pulse records. In version 1.0 there is no compression and this is always 0.
+
+Pulse Options:
+  Potential future options for the pulse records. In version 1.0 this is always 0.
+
+Reserved:
+  Must be zero.
 
 Number of Variable Length Records:
   This field contains the current number of VLRs that are stored in the file before the Pulse Records. This number must be updated if the number of VLRs changes.
@@ -131,17 +155,16 @@ Number of Variable Length Records:
 Number of Appended Variable Length Records:
   This field contains the current number of AVLRs that are stored the file after the Pulse Records. This number should be updated if the number of AVLRs changes. This number may be set to \"-1\", which indicates that the number of AVLRs is not known and must be determined my parsing the AVLRs starting at the end of the file.
 
-Pulse Format:
-  The format of the pulse records. In version 1.0 this is always 0.
+T Scale Factor:
+  This field contains a double-precision floating point value that is used to scale the GPS time stamps T of the pulse records which are integer values. If these integers represent the GPS time in microseconds the scale factor is 1e-6, if thet represent the GPS time as nanoseconds  the scale factor is 1e-9.
 
-Pulse Compression:
-  The compression scheme used for the pulse records. In version 1.0 there is no compression and this is always 0.
+T Offset:
+  This field contains a double-precision floating point value that is used to offset theGPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset. This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
 
-Pulse Record Length:
-  The size, in bytes, of the Pulse Record. All Pulse Records within a Pulse file have the same type and hence the same length. If the specified size is larger than implied by the pulse format (e.g. 32 bytes instead of 28 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
+  timestamp = (T_{record} \* T_{scale}) + T_{offset}
 
-Number of Pulse Records:
-  This field contains the total number of pulse records within the file.
+Min and Max T:
+  The min and max of the integer timestamps stored in the T field of all pulses. To convert the min and max numbers to actual GPS times use the formula above.
 
 X, Y, and Z Scale Factors:
   The scale factor fields contain double-precision floating point values used to scale the X, Y, and Z long values of the pulse records. If the actual x, y, z coordinates have two decimal point values, then each scale factor will contain the number 0.01.   
@@ -155,8 +178,8 @@ X, Y, and Z Offset:
 
   z_{coordinate} = (Z_{record} \* z_{scale}) + z_{offset}
 
-Max and Min X, Y, Z:
-  The max and min fields describe the bounding box that includes the start and end points of the sampled parts of the returning waveforms of all pulses.
+Min and Max X, Y, Z:
+  The min and max fields describe the bounding box that includes the start and end points of the sampled parts of the returning waveforms of all pulses.
 
 Variable Length Records (VLRs):
 ------------------------------------------------------------------------------
@@ -212,11 +235,11 @@ All records must be the same type. Unused attributes must be set to the equivale
     :header: "Item", "Format", "Size"
     :widths: 70, 10, 10
 
-    "GPS time", "double (or long long)", "8 bytes"
-    "Offset to WaveSamples", "long long", "8 bytes"
-    "X_A", "long", "4 bytes"
-    "Y_A", "long", "4 bytes"
-    "Z_A", "long", "4 bytes"
+    "GPS timestamp T", "long long", "8 bytes"
+    "Offset to Wave Samples", "long long", "8 bytes"
+    "X", "long", "4 bytes"
+    "Y", "long", "4 bytes"
+    "Z", "long", "4 bytes"
     "dx", "float", "4 bytes"
     "dy", "float", "4 bytes"
     "dz", "float", "4 bytes"
@@ -225,42 +248,44 @@ All records must be the same type. Unused attributes must be set to the equivale
     "Index of Pulse Descriptor", "14 bits (bit 0-13)", "14 bits"
     "Edge of Flight Line", "1 bit (bit 14)", "1 bit"
     "Scan Direction", "1 bit (bit 15)", "1 bit"
+    "Intensity", "unsigned char", "1 byte"
+    "Classification", "unsigned char", "1 byte"
 
-GPS time:
-  The GPS time at which the laser pulse was fired. For compatibility with LAS 1.4 this field will usually store either the GPS week time or the Adjusted Standard GPS time as a double-precision floating point number. This is specified by the global encoding bits in the Pulse header.
+GPS timestamp T:
+  The GPS time in seconds at which the laser pulse was fired as a scaled and offset 64 bit integer. This field stores either the GPS week time or the Standard GPS time. The rational to use a scaled integer instead of a double-precision floating-point number is that the latter slowly looses precision as time progresses.
 
-Offset to WaveSamples:
-  The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the indexed "Pulse Descriptor".
+Offset to Wave Samples:
+  The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the Pulse Descriptor that is indexed by a later field.
 
-X_A, Y_A, and Z_A:
-  The anchor point of the pulse. Scaling and offseting the integers X_A, Y_A, and Z_A with scale and offset from the header gives the actual coordinates in world coordinates. The anchor point equals the location of the scanner's optical origin at the time the laser was fired, if the "Offset from Optical Center to Anchor Points" field of the "Pulse Description Record" is zero.
+X, Y, and Z:
+  The anchor point of the pulse. Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the anchor point. In case the Offset from Optical Center to Anchor Point field of the corresponding Pulse Descriptor is zero, the anchor point coincides with the location of the scanner's optical origin at the time the laser was fired, .
 
-  x_{anchor} = (X_A \* x_{scale}) + x_{offset}
+  x_{anchor} = (X \* x_{scale}) + x_{offset}
 
-  y_{anchor} = (Y_A \* y_{scale}) + y_{offset}
+  y_{anchor} = (Y \* y_{scale}) + y_{offset}
  
-  z_{anchor} = (Z_A \* z_{scale}) + z_{offset}
+  z_{anchor} = (Z \* z_{scale}) + z_{offset}
 
 dx, dy, and dz:
-  The pulse direction vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet or survey feet for US stateplane reference systems) that the laser pulse travels in one (1) nanosecond away from the origin (e.g. towards the ground in an airborne survey).
+  The pulse direction vector that the laser pulse travels in one sampling unit away from the origin (e.g. towards the ground in an airborne survey). Ihis vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems).
 
 First Returning Sample:
-  The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the "Sample Units" value from the corresponding "Pulse Description Record" this value allows computing the x/y/z world coordinates of the first intensity sample that was recorded for the returning waveform of this pulse:
+  The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
 
-  x_{first} = x_{anchor} + first_returning_sample \* sample_units * dx
+  x_{first} = x_{anchor} + first_returning_sample \* dx
 
-  y_{first} = y_{anchor} + first_returning_sample \* sample_units * dy
+  y_{first} = y_{anchor} + first_returning_sample \* dy
 
-  z_{first} = z_{anchor} + first_returning_sample \* sample_units * dz
+  z_{first} = z_{anchor} + first_returning_sample \* dz
 
 Last Returning Sample:
-  Same concept as the "First Returning Sample" but for the last one:
+  Same concept as the First Returning Sample but for the last one:
 
-  x_{last} = x_{anchor} + last_returning_sample \* sample_units * dx
+  x_{last} = x_{anchor} + last_returning_sample \* dx
 
-  y_{last} = y_{anchor} + last_returning_sample \* sample_units * dy
+  y_{last} = y_{anchor} + last_returning_sample \* dy
 
-  z_{last} = z_{anchor} + last_returning_sample \* sample_units * dz
+  z_{last} = z_{anchor} + last_returning_sample \* dz
 
 Index of Pulse Descriptor:
   The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 16,384 different descriptors can be specified. A pulse descriptor consist of a "Pulse Description Record" followed by a variable number "Sampling Description Records".
@@ -271,6 +296,11 @@ Scan Direction Flag:
 Edge of Flight Line:
   This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware changes direction, mirror facet, or zigs back.
 
+Intensity:
+  This value characterizes the returned intensity of the pulse for easy understanding and quick visualization purposes. It should be properly scaled so that it can be used to color the pulse for previewing purposes. The value may or may not have a physical meaning.
+
+Classification:
+  This value us used to (pre-)classify entire pulses into a yet to ve established metric. Possible are the number of waveform peaks or a simple roof, forest, grass, road, water,for quick understanding.
 
 Defined Variable Length Records (VLRs or AVLRs):
 ------------------------------------------------------------------------------
