@@ -540,7 +540,7 @@ Distance from Anchor of Segment k in Sampling m:
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled again and again.
 
-  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes, if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
+  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
 
 Number of Samples in Sampling m:
   This field only exists if the number of "bits for number of samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples that are following and the waveform has a "variable sampling". If the number of "bits for number of samples" in the corresponding sampling description is zero the "number of samples" is specified in the sampling description and the waveform has a "fixed sampling".
@@ -554,6 +554,12 @@ Samples of Sampling m:
 
    An illustration of a typical Pulse Description VLR.
 
+The rest of the document is gibberish ...
+------------------------------------------------------------------------------
+
+`PulseWaves`_ is a 
+
+Example
 ..............................................................................
 
 
@@ -563,6 +569,14 @@ Notes
 * The `PulseWaves` format is composed of a `Pulse` and a `Waves` file.
 
 * In addition to the
+
+
+Future Notes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``Pulse`` requires ...
+
+* Knowledge of how to make ...
 
 Example Formatting
 ------------------------------------------------------------------------------
