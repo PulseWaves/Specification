@@ -335,7 +335,7 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     "Size", "---", "unsigned long", "4 bytes"
     "Optical Center to Anchor Point", "[sampling units]", "long", "4 bytes"
     "Bits for Distance from Optical", "", "unsigned char", "1 byte"
-    "Decimal Digits of Distance", "", "unsigned char", "1 byte"
+    "Decimal Digits in Distance", "", "unsigned char", "1 byte"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
     "Scanner ID", "---", "unsigned long", "4 bytes"
@@ -361,8 +361,8 @@ Optical Center to Anchor Point:
 Bits for Distance to Optical:
   If this value is non-zero then there is information in the Waves file about the temporal offset in sampling units from the optical center to the anchor point. The only supported non-zero values are 16, and 32 bits. In this case the first two or four bytes of the waveform data in the Waves file store this offset.
 
-Decimal Digits of Distance:
-  If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2).
+Decimal Digits in Distance:
+  If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the specified number of decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
 
 Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" that directly follow this "Pulse Description Record".
@@ -435,16 +435,13 @@ Bits for Distance from Anchor:
   Specifies how many bits are used in the Waves file to store the integers that express distance from the anchor point to the first sample of each segment in sample units. In case the number of bits is zero the distance between anchor point to the first sample must be zero and there should only be one segment. The only non-zero values supported in version 1.0 are 8 or 16 bits.
 
 Decimal Digits in Distance:
-   Specifies the fractional precision of the numbers that store the distances from the anchor point in sample units. If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
+   Specifies the fractional precision of the numbers that store the distances from the anchor point in sample units. If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the specified number of decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
 
 Bits for number of segments:
   Specifies the number of bits used to store the number of segments in the sampling in case segmenting is variable. If this number is zero the segmenting is fixed and specified by the "Number of Segments" field below. The only non-zero values supported in version 1.0 are 8 or 16 bits.
 
 Bits for number of samples:
   Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the sampling is fixed and specified by the "Number of Samples" below.  The only non-zero values supported in version 1.0 are 8 or 16 bits.
-
-Number of decimal digits:
-
 
 Number of Segments:
   If a fixed segmenting is used because the "Bits for Number of Segments" above is zero, this field specifies the number of segments in the segmenting. If a variable segmenting is used because the "Bits for Number of Segments" above is non-zero, this field is meaningless and should be zero.
@@ -509,28 +506,44 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
 .. csv-table:: Waves of Pulse
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
-    
+
+    "Optical Center to Anchor Point", "sample units", "bits", "0, 16, or 32 bits"
     "Number of Segments in Sampling 0", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor of Segment 0 in Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples of Segment 0 in Sampling 0", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Segment 0 in Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
+    "Distance from Anchor for Segment 0 of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 0 from Sampling 0", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 from Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."
     "Number of Segments in Sampling 1", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor of Segment 0 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples of Segment 0 in Sampling 1", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Segment 0 in Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
+    "Distance from Anchor for Segment 0 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 0 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 from Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
+    "Distance from Anchor for Segment 1 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 1 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 1 from Sampling 1", "---", "unsigned char[s0]", "s0 bytes"
+    "Distance from Anchor for Segment 2 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 2 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 2 from Sampling 1", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."
     "Number of Segments in Sampling 2", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor of Segment 0 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
-    "Number of Samples of Segment 0 in Sampling 2", "---", "bits", "0, 8, or 16 bits"
-    "Samples of Segment 0 in Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
+    "Distance from Anchor for Segment 0 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 0 from Sampling 2", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 0 from Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
+    "Distance from Anchor for Segment 1 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Number of Samples in Segment 1 from Sampling 2", "---", "bits", "0, 8, or 16 bits"
+    "Samples of Segment 1 from Sampling 2", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."		
 
-Distance from Anchor of Segment k in Sampling m:
-  This field only exists if the number of "Bits for Distance from Anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample of sampling m in (possibly scaled) sample units. Depending on the value of the corresponding "Number of decimal digits" field this number may need to be scaled by 0.1 or 0.01 to obtain the actual distances. If the "Number of decimal digits" field iz zero the distances between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "bits for distance from anchor" in the corresponding sampling description record is zero then this distance is zero, meaning that the anchor point coincides with the first sample of the sampling. The distance determine the x/y/z coordinate of the 3D location of the first sample of each sampling via the following calculation:
+Optical Center to Anchor Point:
+  This field is usually not used. It only exists if the number of "Bits for Distance from Optical" in the corresponding pulse description record is non-zero. It then specifies the distance from the optical center to the anchor point in sample units. Depending on the value of the corresponding "Decimal Digits in Distance" field, this number may need to be scaled by 0.1 or 0.01. This field exists only to account for the (rare?) case that it is important to keep track of the optical origin while at the same time it not being possible to do this by using the optical origin as  the anchor point.
+
+Number of Segments in Sampling m:
+  This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling description record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling description record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the "corresponding pulse desciption record  (i.e. "fixed segmentation").
+
+Distance from Anchor for Segment k of Sampling m:
+  This field only exists if the number of "Bits for Distance from Anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Distance" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Distance" field is zero the distances between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Distance from Anchor" in the corresponding sampling description record is zero, then this distance is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The distance determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
 
   x_{sample} = x_{anchor} + distance_from_anchor \* dx 
 
@@ -538,14 +551,14 @@ Distance from Anchor of Segment k in Sampling m:
 
   z_{sample} = z_{anchor} + distance_from_anchor \* dz
 
-  while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector scaled again and again.
+  while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector again and again.
 
   One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
 
-Number of Samples in Sampling m:
-  This field only exists if the number of "bits for number of samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples that are following and the waveform has a "variable sampling". If the number of "bits for number of samples" in the corresponding sampling description is zero the "number of samples" is specified in the sampling description and the waveform has a "fixed sampling".
+Number of Samples in Segment k from Sampling m:
+  This field only exists if the number of "Bits for Number of Samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples in the next segment that can vary from one pulse to the next (i.e. "variable sampling"). If the number of "Bits for Number of Samples" in the corresponding sampling description record is zero, the number of samples is fixed and is specified in the the "Number of Samples" field of the corresponding sampling description (i.e. "fixed sampling").
 
-Samples of Sampling m:
+Samples of Segment k from Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
 
 .. figure:: pulsewaves.jpg
@@ -567,8 +580,6 @@ Notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * The `PulseWaves` format is composed of a `Pulse` and a `Waves` file.
-
-* In addition to the
 
 
 Future Notes
