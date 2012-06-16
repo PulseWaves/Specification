@@ -236,7 +236,7 @@ All records must be the same type. Unused attributes must be set to the equivale
     :widths: 70, 10, 10
 
     "GPS timestamp T", "long long", "8 bytes"
-    "Offset to Wave Samples", "long long", "8 bytes"
+    "Offset to Waves", "long long", "8 bytes"
     "X", "long", "4 bytes"
     "Y", "long", "4 bytes"
     "Z", "long", "4 bytes"
@@ -254,7 +254,7 @@ All records must be the same type. Unused attributes must be set to the equivale
 GPS timestamp T:
   The GPS time in seconds at which the laser pulse was fired as a scaled and offset 64 bit integer. This field stores either the GPS week time or the Standard GPS time. The rational to use a scaled integer instead of a double-precision floating-point number is that the latter slowly looses precision as time progresses.
 
-Offset to Wave Samples:
+Offset to Waves:
   The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the Pulse Descriptor that is indexed by a later field.
 
 X, Y, and Z:
@@ -484,12 +484,12 @@ The Waves file (\*.wvs) is not a stand-alone file but needs a corresponding Puls
     :widths: 100
 
     "Header"
-    "WaveSamples of Pulse"
-    "WaveSamples of Pulse"
-    "WaveSamples of Pulse"
-    "WaveSamples of Pulse"
+    "Waves of Pulse 0"
+    "Waves of Pulse 1"
+    "Waves of Pulse 2"
+    "Waves of Pulse 3"
     "..."
-    "WaveSamples of Pulse"
+    "Waves of Pulse k"
 
 .. csv-table:: The Waves Header
     :header: "Item", "Format", "Size"
@@ -506,7 +506,7 @@ Reserved:
 
 The header is a mostly place holder of 60 bytes to make it possible that a Waves file can easily be converted into a valid WDP file to accompany a LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the Waves file. 
 
-.. csv-table:: WaveSamples of Pulse
+.. csv-table:: Waves of Pulse
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
     
