@@ -338,6 +338,7 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     "Decimal Digits in Distance", "", "unsigned char", "1 byte"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
+    "Compression", "---", "unsigned long", "4 bytes"
     "Scanner ID", "---", "unsigned long", "4 bytes"
     "Wavelength", "[nanometer]", "float", "4 bytes"
     "Outgoing Pulse Width", "[nanometer]", "float", "4 bytes"
@@ -370,6 +371,9 @@ Number of Samplings:
 Sample Units:
   Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Description Records" then the shortest one is specified here.
 
+Compression:
+  In version 1.0 this is always 0.
+
 Scanner ID:
   In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
 
@@ -383,7 +387,7 @@ Beam Diameter at Exit Aperture:
   The diameter of the laser beam in millimeter in the moment it leaves the scanner hardware.
 
 Beam Divergance:
-  The divergance of the laser beam in milliradians [urad] @ 1/e2. [or should we use @ 1/e]?
+  The divergance of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
 
 Reserved:
   Must be zero.
