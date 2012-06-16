@@ -402,7 +402,7 @@ Sampling Description Records:
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "---", unsigned long", "4 bytes" 
+    "Version", "---", "unsigned long", "4 bytes" 
     "Size", "---", "unsigned long", "4 bytes" 
     "Type", "---", "unsigned char", "1 byte" 
     "Channel", "---", "unsigned char", "1 byte" 
