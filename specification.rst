@@ -545,11 +545,11 @@ Number of Segments in Sampling m:
 Distance from Anchor for Segment k of Sampling m:
   This field only exists if the number of "Bits for Distance from Anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Distance" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Distance" field is zero the distances between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Distance from Anchor" in the corresponding sampling description record is zero, then this distance is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The distance determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
 
-  x_{sample} = x_{anchor} + distance_from_anchor \* dx 
+  x_{first_sample} = x_{anchor} + distance_from_anchor \* dx 
 
-  y_{sample} = y_{anchor} + distance_from_anchor \* dy 
+  y_{first_sample} = y_{anchor} + distance_from_anchor \* dy 
 
-  z_{sample} = z_{anchor} + distance_from_anchor \* dz
+  z_{first_sample} = z_{anchor} + distance_from_anchor \* dz
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector again and again.
 
