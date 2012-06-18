@@ -246,10 +246,10 @@ All records must be the same type. Unused attributes must be set to the equivale
     "First Returning Sample [sampling units]", "short", "2 bytes"
     "Last Returning Sample [sampling units]", "short", "2 bytes"
     "Index of Pulse Descriptor", "8 bits (bit 0-7)", "8 bits"
-    "Reserved1", "4 bits (bit 8-11)", "4 bits"
+    "Reserved", "4 bits (bit 8-11)", "4 bits"
     "Edge of Scan Line", "1 bit (bit 12)", "1 bit"
     "Scan Direction", "1 bit (bit 13)", "1 bit"
-    "Reserved2", "2 bits (bit 14-15)", "2 bits"
+    "Mirror Facet", "2 bits (bit 14-15)", "2 bits"
     "Intensity", "unsigned char", "1 byte"
     "Classification", "unsigned char", "1 byte"
 
@@ -292,17 +292,17 @@ Last Returning Sample:
 Index of Pulse Descriptor:
   The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 16,384 different descriptors can be specified. A pulse descriptor consist of a "Pulse Description Record" followed by a variable number "Sampling Description Records".
 
-Reserved1:
+Reserved:
   Must be zero.
 
 Scan Direction Flag:
-  This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction or as long as they are reflected from the same mirror facet of the scanner. It flips whenever the mirror direction or the facet changes.
+  This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction. It flips whenever the mirror direction changes. [We should define which bit means which direction from an airborne / mobile collection point of view].
 
 Edge of Scan Line:
-  This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware changes direction, mirror facet, or zigs back.
+  This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware has a change in direction or mirror facet.
 
-Reserved2:
-  Must be zero.
+Mirror Facet:
+  These two bits encode which mirror facet the pulse is reflected from. These two bits do not change as long as subsequent pulses are from the same mirror facet of the scanner.
 
 Intensity:
   This value characterizes the returned intensity of the pulse for easy understanding and quick visualization purposes. It should be properly scaled so that it can be used to color the pulse for previewing purposes. The value may or may not have a physical meaning.
