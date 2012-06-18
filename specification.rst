@@ -197,7 +197,7 @@ The Pulse Header can be followed by any number of Variable Length Records (VLRs)
     "Description", "char[32]", "32 bytes"
 
 User ID:
-  The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved. The User IDs "LASF_Spec" and "LASF_Projection" from the LAS 1.4 specification are also reserved.
+  The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved.
 
 Record ID:
   The Record ID allows to distinuish different VLRs with the same User ID. The Record IDs for the User ID "PulseWaves_Spec" are reserved. Publicizing the meaning of a Record ID is left to the owner of the given User ID. 
@@ -513,7 +513,7 @@ File Signature:
 Reserved:
   Must be zero.
 
-The header is a mostly place holder of 60 bytes to make it possible that a Waves file can easily be converted into a valid WDP file to accompany a LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the Waves file. 
+The header is a mostly place holder of 60 bytes to make it possible that a Waves file can easily be converted into a valid WDP file to accompany a LAS 1.3 or LAS 1.4 file that contains point types 4, 5, 9, or 10 without a full re-write of the Waves file. 
 
 .. csv-table:: Waves of Pulse
     :header: "Item", "Units", "Format", "Size"
