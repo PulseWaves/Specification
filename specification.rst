@@ -159,7 +159,7 @@ T Scale Factor:
   This field contains a double-precision floating point value that is used to scale the GPS time stamps T of the pulse records which are integer values. If these integers represent the GPS time in microseconds the scale factor is 1e-6, if thet represent the GPS time as nanoseconds  the scale factor is 1e-9.
 
 T Offset:
-  This field contains a double-precision floating point value that is used to offset theGPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset. This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
+  This field contains a double-precision floating point value that is used to offset theGPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset (or a similar high number representing midnight of the day the LiDAR was done). This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
 
   timestamp = (T_{record} \* T_{scale}) + T_{offset}
 
@@ -245,9 +245,11 @@ All records must be the same type. Unused attributes must be set to the equivale
     "dz", "float", "4 bytes"
     "First Returning Sample [sampling units]", "short", "2 bytes"
     "Last Returning Sample [sampling units]", "short", "2 bytes"
-    "Index of Pulse Descriptor", "14 bits (bit 0-13)", "14 bits"
-    "Edge of Flight Line", "1 bit (bit 14)", "1 bit"
-    "Scan Direction", "1 bit (bit 15)", "1 bit"
+    "Index of Pulse Descriptor", "8 bits (bit 0-7)", "8 bits"
+    "Reserved1", "4 bits (bit 8-11)", "4 bits"
+    "Edge of Scan Line", "1 bit (bit 12)", "1 bit"
+    "Scan Direction", "1 bit (bit 13)", "1 bit"
+    "Reserved2", "2 bits (bit 14-15)", "2 bits"
     "Intensity", "unsigned char", "1 byte"
     "Classification", "unsigned char", "1 byte"
 
@@ -290,11 +292,17 @@ Last Returning Sample:
 Index of Pulse Descriptor:
   The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 16,384 different descriptors can be specified. A pulse descriptor consist of a "Pulse Description Record" followed by a variable number "Sampling Description Records".
 
+Reserved1:
+  Must be zero.
+
 Scan Direction Flag:
   This bit remains the same as long as pulses are output with the mirror of the scanner travelling in the same direction or as long as they are reflected from the same mirror facet of the scanner. It flips whenever the mirror direction or the facet changes.
 
-Edge of Flight Line:
+Edge of Scan Line:
   This bit has a value of 1 when the output pulse is at the end of a scan line. It is the last pulse before the scanning hardware changes direction, mirror facet, or zigs back.
+
+Reserved2:
+  Must be zero.
 
 Intensity:
   This value characterizes the returned intensity of the pulse for easy understanding and quick visualization purposes. It should be properly scaled so that it can be used to color the pulse for previewing purposes. The value may or may not have a physical meaning.
