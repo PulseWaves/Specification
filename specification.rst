@@ -363,7 +363,7 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     "Version", "---", "unsigned long", "4 bytes"
     "Size", "---", "unsigned long", "4 bytes"
     "Optical Center to Anchor Point", "[sampling units]", "long", "4 bytes"
-    "Number of Extra Wave Bytes", "", "unsigned short", "2 bytes"
+    "Number of Extra Wave Bytes", "---", "unsigned short", "2 bytes"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
     "Compression", "---", "unsigned long", "4 bytes"
@@ -388,7 +388,7 @@ Optical Center to Anchor Point:
   This value specifies the constant temporal offset in sampling units from the optical center to the anchor point - given such a constant exists. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is 0x8FFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant multiple of the direction vector but the distance may be specified for each anchor point individually.
 
 Number of Extra Waves Bytes:
-  Specified the number of extra bytes that the waves are storing before the actual data describing the waves begins. These extra bytes may or may not be meaningful to the current version of the PulseWaves reader, but knowing their number assures forward-compatibility in case later versions add extra information to all waves.
+  Specified the number of extra bytes that the waves are storing before the actual data describing the waves begins. These extra bytes may or may not be meaningful to the current version of the PulseWaves reader, but knowing their number assures forward-compatibility in case later versions add new attribute information to all waves.
 
 Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" that directly follow this "Pulse Description Record".
