@@ -35,6 +35,27 @@ The Waves file is *not* stand-alone and depends upon the Pulse file. Each pulse 
 Via the GPS time the pulses in the Pulse file and their associated Waves may (optionally) be linked to the discrete point returns stored in corresponding LASer files and vice-versa.
 
 ==============================================================================
+Standard Data Types
+==============================================================================
+
+For better readability of the document we use old-fashioned data type names such as "int" or "unsigned short" instead of "int32_t" or "uint16_t"  to refer to a 32 bit signed integer or a 16 bit unsigned integer. Here a table of the data types used in this document.
+
+.. csv-table:: Standard Data Types
+    :header: "Name", "C Standard", "Size in Bytes"
+    :widths: 70, 10, 10
+    
+    "unsigned char", "uint8_t", "1"
+    "char", "int8_t", "1"
+    "unsigned short", "uint16_t", "2"
+    "short", "int16_t", "2"
+    "unsigned long", "uint32_t", "4"
+    "long", "int32_t", "4"
+    "unsigned long long", "uint64_t", "8"
+    "long long", "int64_t", "8"
+    "float", "float64_t", "4"
+    "double", "float64_t", "8"
+
+==============================================================================
 The Pulse file (\*.pls)
 ==============================================================================
 
@@ -272,7 +293,7 @@ dx, dy, and dz:
   The pulse direction vector that the laser pulse travels in one sampling unit away from the origin (e.g. towards the ground in an airborne survey). Ihis vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems).
 
 First Returning Sample:
-  The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
+  The distance in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
 
   x_{first} = x_{anchor} + first_returning_sample \* dx
 
@@ -342,8 +363,7 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     "Version", "---", "unsigned long", "4 bytes"
     "Size", "---", "unsigned long", "4 bytes"
     "Optical Center to Anchor Point", "[sampling units]", "long", "4 bytes"
-    "Bits for Distance from Optical", "", "unsigned char", "1 byte"
-    "Decimal Digits in Distance", "", "unsigned char", "1 byte"
+    "Number of Extra Wave Bytes", "", "unsigned short", "2 bytes"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
     "Compression", "---", "unsigned long", "4 bytes"
@@ -367,11 +387,8 @@ Size:
 Optical Center to Anchor Point:
   This value specifies the constant temporal offset in sampling units from the optical center to the anchor point - given such a constant exists. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is 0x8FFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant multiple of the direction vector but the distance may be specified for each anchor point individually.
 
-Bits for Distance to Optical:
-  If this value is non-zero then there is information in the Waves file about the temporal offset in sampling units from the optical center to the anchor point. The only supported non-zero values are 16, and 32 bits. In this case the first two or four bytes of the waveform data in the Waves file store this offset.
-
-Decimal Digits in Distance:
-  If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the specified number of decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
+Number of Extra Waves Bytes:
+  Specified the number of extra bytes that the waves are storing before the actual data describing the waves begins. These extra bytes may or may not be meaningful to the current version of the PulseWaves reader, but knowing their number assures forward-compatibility in case later versions add extra information to all waves.
 
 Number of Samplings:
   A value larger than 0 specifying the number of "Sampling Description Records" that directly follow this "Pulse Description Record".
@@ -505,10 +522,14 @@ The Waves file (\*.wvs) is not a stand-alone file but needs a corresponding Puls
     :widths: 70, 10, 10
     
     "File Signature (“PulseWavesWaves”)", "char[16]", "16 bytes"
-    "Reserved", "unsigned char[44]", "44 bytes"
+    "Compression", "unsigned long", "4 bytes"
+    "Reserved", "unsigned char[44]", "40 bytes"
 
 File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesWaves" that can be checked by user software as a quick look validate the file type.
+
+Compression:
+  Specifies whether the waves are uncompressed (0) or compressed. Currently only one experiemental compression scheme (1) is supported.
 
 Reserved:
   Must be zero.
@@ -519,7 +540,7 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     :header: "Item", "Units", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Optical Center to Anchor Point", "sample units", "bits", "0, 16, or 32 bits"
+    "Extra Waves Bytes", "---", "unsigned char[e]", "e bytes"
     "Number of Segments in Sampling 0", "---", "bits", "0, 8, or 16 bits"
     "Distance from Anchor for Segment 0 of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
     "Number of Samples in Segment 0 from Sampling 0", "---", "bits", "0, 8, or 16 bits"
@@ -548,8 +569,8 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     "...", "...", "...", "..."		
     "...", "...", "...", "..."		
 
-Optical Center to Anchor Point:
-  This field is usually not used. It only exists if the number of "Bits for Distance from Optical" in the corresponding pulse description record is non-zero. It then specifies the distance from the optical center to the anchor point in sample units. Depending on the value of the corresponding "Decimal Digits in Distance" field, this number may need to be scaled by 0.1 or 0.01. This field exists only to account for the (rare?) case that it is important to keep track of the optical origin while at the same time it not being possible to do this by using the optical origin as  the anchor point.
+Extra Waves Bytes:
+  This field only exists if the "Number of Extra Waves Bytes" in the corresponding sampling description record is non-zero. This field is currently not used but assures forward compatibility in case that laster versions of the PulseWaves format add additional attributes to all waves. The corresponding number of e extra bytes needs then to be read or be skipped before attempting to read the next field of the waves of a pulse.
 
 Number of Segments in Sampling m:
   This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling description record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling description record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the "corresponding pulse desciption record  (i.e. "fixed segmentation").
@@ -565,7 +586,7 @@ Distance from Anchor for Segment k of Sampling m:
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector again and again.
 
-  One exception is the start of the sampling for the outgoing waveform. Here the temporal duration is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
+  One exception is the start of the sampling for the outgoing waveform. Here the distance in sampling units is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
 
 Number of Samples in Segment k from Sampling m:
   This field only exists if the number of "Bits for Number of Samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples in the next segment that can vary from one pulse to the next (i.e. "variable sampling"). If the number of "Bits for Number of Samples" in the corresponding sampling description record is zero, the number of samples is fixed and is specified in the the "Number of Samples" field of the corresponding sampling description (i.e. "fixed sampling").
