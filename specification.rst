@@ -79,7 +79,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     
     "File Signature (“PulseWavesPulse”)", "char[16]", "16 bytes"
     "Global Parameters", "unsigned long", "4 bytes"
-    "Scan ID", "unsigned long", "4 bytes"
+    "Scan Index", "unsigned long", "4 bytes"
     "Project ID - GUID data 1", "unsigned long", "4 bytes"
     "Project ID - GUID data 2", "unsigned short", "2 bytes"
     "Project ID - GUID data 3", "unsigned short", "2 bytes"
@@ -125,11 +125,11 @@ File Signature:
 Global Parameters:
   This is a bit field used to specify global properties about the file.
 
-Scan ID:
+Scan Index:
   If this file contains the pulses from a single scan, this field should contain the flight line number, the drive path ID, or the scan site identifier.
 
 Project ID (GUID data):
-  These four fields describe a Globally Unique IDentifier (GUID) to identify a project. These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a unique Scan ID for every scan of the project, every pulse can be uniquely identified.
+  These four fields describe a Globally Unique IDentifier (GUID) to identify a project. These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a unique Scan Index for every scan of the project, every pulse can be uniquely identified.
 
 System Identifier:
   This information is ASCII data describing the hardware sensor that collected or the process that generated the pulse records in this file. If the character data is less than 64 characters, the remaining data must be null.
@@ -266,7 +266,7 @@ All records must be the same type. Unused attributes must be set to the equivale
     "Target z", "long", "4 bytes"
     "First Returning Sample [sampling units]", "short", "2 bytes"
     "Last Returning Sample [sampling units]", "short", "2 bytes"
-    "Descriptor Index", "8 bits (bit 0-7)", "8 bits"
+    "Pulse Descriptor Index", "8 bits (bit 0-7)", "8 bits"
     "Reserved", "4 bits (bit 8-11)", "4 bits"
     "Edge of Scan Line", "1 bit (bit 12)", "1 bit"
     "Scan Direction", "1 bit (bit 13)", "1 bit"
@@ -325,7 +325,7 @@ Last Returning Sample:
   z_{last} = z_{anchor} + last_returning_sample \* dz
 
 Index of Pulse Descriptor:
-  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 16,384 different descriptors can be specified. A pulse descriptor consist of a "Pulse Description Record" followed by a variable number "Sampling Description Records".
+  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 255 different descriptors can be specified. A pulse descriptor consist of a "Composition Record" followed by a variable number "Sampling Records".
 
 Reserved:
   Must be zero.
@@ -378,10 +378,18 @@ The Scanner VLR describes the scanner system that the pulse originated from.
     "Reserved", "---", "unsigned long", "4 bytes"
     "Instrument", "---", "char[64]", "64 bytes"
     "Serial", "---", "char[64]", "64 bytes"
-    "Wavelength", "[nanometer]", "float", "4 bytes"
+    "Wave Length", "[nanometer]", "float", "4 bytes"
     "Outgoing Pulse Width", "[nanometer]", "float", "4 bytes"
+    "Scan Pattern", "---", "unsigned long", "4 bytes"
+    "Number of Mirror Facets", "---", "unsigned long", "4 bytes"
+    "Scan Frequency", "[hertz], "float", "4 bytes"
+    "Scan Angle Min", "[degree], "float", "4 bytes"
+    "Scan Angle Max", "[degree], "float", "4 bytes"
+    "Pulse Frequency", "[kilohertz], "float", "4 bytes"
     "Beam Diameter at Exit Aperture", "[millimeters]", "float", "4 bytes"
     "Beam Divergance", "[milliradians]", "float", "4 bytes"
+    "Minimal Range", "[meter]", "float", "4 bytes"
+    "Maximal Range", "[meter]", "float", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -393,6 +401,40 @@ Size:
 Reserved:
   Must be zero.
 
+Instrument:
+
+Serial:
+
+Wave Length:
+  The physical wavelength of the laser in nanometers.
+
+Outgoing Pulse Width:
+  The width of the outgoing pulse in nanometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
+
+Scan Pattern:
+
+Number of Mirror Facets:
+
+Scan Frequency:
+
+Scan Angle Min:
+
+Scan Angle Max:
+
+Pulse Frequency:
+
+Beam Diameter at Exit Aperture:
+  The diameter of the laser beam in millimeter in the moment it leaves the scanner hardware.
+
+Beam Divergance:
+  The divergance of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
+
+Minimal Range:
+
+Maximal Range:
+
+Description:
+  Null terminated text description (optional).  Any characters not used must be null.
 
 Pulse Descriptor:
 ------------------------------------------------------------------------------
@@ -401,9 +443,9 @@ User ID: 	                    PulseWaves_Spec
 
 Record ID: 	                    n (where 200,001 <= n < 200,255)
 
-The Pulse Descriptor describes the scanner system that the pulse originates from and the (optionally segmented) sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Pulse Description Record" that is immediately followed by a variable number of "Sampling Description Records" that allow a very flexible description of segmentings and samplings of the waveforms with one or multiple sensors.
+The Pulse Descriptor describes the (optionally segmented) sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Composition Record" that is immediately followed by a variable number of "Sampling Records" that allow a very flexible description of segmentings and samplings of the waveforms with one or multiple sensors.
 
-.. csv-table:: Pulse Description Record 
+.. csv-table:: Composition Record 
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
@@ -413,8 +455,8 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     "Number of Extra Wave Bytes", "---", "unsigned short", "2 bytes"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
+    "Scanner Index", "---", "unsigned long", "4 bytes"
     "Compression", "---", "unsigned long", "4 bytes"
-    "Scanner ID", "---", "unsigned long", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -433,39 +475,24 @@ Number of Extra Waves Bytes:
   Specified the number of extra bytes that the waves are storing before the actual data describing the waves begins. These extra bytes may or may not be meaningful to the current version of the PulseWaves reader, but knowing their number assures forward-compatibility in case later versions add new attribute information to all waves.
 
 Number of Samplings:
-  A value larger than 0 specifying the number of "Sampling Description Records" that directly follow this "Pulse Description Record".
+  A value larger than 0 specifying the number of "Sampling Records" that immediately follow this "Composition Record".
 
 Sample Units:
-  Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Description Records" then the shortest one is specified here.
+  Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Records" then the shortest common multiple is specified here.
+
+Scanner Index:
+  There may be several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by letting their pulse descriptors index a different Scanner VLR. The default is 0 which indictes that no Scanner VLR is being specified.
 
 Compression:
   In the current version this is always 0.
 
-Scanner ID:
-  In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
-
-Wavelength:
-  The physical wavelength of the laser in nanometers.
-
-Outgoing Pulse Width:
-  The width of the outgoing pulse in nanometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
-
-Beam Diameter at Exit Aperture:
-  The diameter of the laser beam in millimeter in the moment it leaves the scanner hardware.
-
-Beam Divergance:
-  The divergance of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
-
-Reserved:
-  Must be zero.
-
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
 
-Sampling Description Records:
+Sampling Records:
 ------------------------------------------------------------------------------
 
-.. csv-table:: Sampling Description Record 
+.. csv-table:: Sampling Record 
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
@@ -614,13 +641,13 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
     "...", "...", "...", "..."		
 
 Extra Waves Bytes:
-  This field only exists if the "Number of Extra Waves Bytes" in the corresponding sampling description record is non-zero. This field is currently not used but will allow forward compatibility in case that later versions of the PulseWaves format add additional attributes to the waves. The corresponding number of e extra bytes need then to be read or be skipped before attempting to read the next field of the waves of a pulse.
+  This field only exists if the "Number of Extra Waves Bytes" in the corresponding sampling record is non-zero. This field is currently not used but will allow forward compatibility in case that later versions of the PulseWaves format add additional attributes to the waves. The corresponding number of e extra bytes need then to be read or be skipped before attempting to read the next field of the waves of a pulse.
 
 Number of Segments in Sampling m:
-  This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling description record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling description record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the "corresponding pulse desciption record  (i.e. "fixed segmentation").
+  This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the corresponding sampling record (i.e. "fixed segmentation").
 
 Duration from Anchor for Segment k of Sampling m:
-  This field only exists if the number of "Bits for Duration from Anchor" in the corresponding sampling description record is non-zero. It then specifies the duration from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Duration" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Duration" field is zero the durations between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Duration from Anchor" in the corresponding sampling description record is zero, then this duration is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The duration determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
+  This field only exists if the number of "Bits for Duration from Anchor" in the corresponding sampling record is non-zero. It then specifies the duration from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Duration" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Duration" field is zero the durations between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Duration from Anchor" in the corresponding sampling record is zero, then this duration is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The duration determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
 
   x_{first_sample} = x_{anchor} + duration_from_anchor \* dx 
 
@@ -633,16 +660,16 @@ Duration from Anchor for Segment k of Sampling m:
   One exception is the start of the sampling for the outgoing waveform. Here the duration in sampling units is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" field is zero).
 
 Number of Samples in Segment k from Sampling m:
-  This field only exists if the number of "Bits for Number of Samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples in the next segment that can vary from one pulse to the next (i.e. "variable sampling"). If the number of "Bits for Number of Samples" in the corresponding sampling description record is zero, the number of samples is fixed and is specified in the the "Number of Samples" field of the corresponding sampling description (i.e. "fixed sampling").
+  This field only exists if the number of "Bits for Number of Samples" in the corresponding sampling record is non-zero. It then specifies the number of samples in the next segment that can vary from one pulse to the next (i.e. "variable sampling"). If the number of "Bits for Number of Samples" in the corresponding sampling record is zero, the number of samples is fixed and is specified in the the "Number of Samples" field of the corresponding sampling description (i.e. "fixed sampling").
 
 Samples of Segment k from Sampling m:
   The actual waveform samples of sampling m either raw or compressed.
 
 .. figure:: pulsewaves.jpg
    :scale: 100 %
-   :alt: illustration of a Pulse Description VLR
+   :alt: illustration of a Pulse Descriptor
 
-   An illustration of a typical Pulse Description VLR.
+   An illustration of a typical Pulse Descriptor
 
 The rest of the document is gibberish ...
 ------------------------------------------------------------------------------
