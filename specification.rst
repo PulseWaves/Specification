@@ -13,12 +13,12 @@ Date:
 initial draft created on Dec 23th, 2011
 
 ***************************************************************************************
- PulseWaves - Full Waveform LiDAR Specification (version 0.0)
+ PulseWaves - Full Waveform LiDAR Specification (version 0.2)
 ***************************************************************************************
 
 .. class:: heading4
     
-This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its initial 1.0 version.  The current draft is expected to continuously change before the actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
+This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.2 version. The current draft is expected to be fairly close to the first actual 1.0 releas version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
 
 The PulseWaves format consists of two binary files: The *Pulse* files (\*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (\*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (\*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
@@ -84,8 +84,8 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Project ID - GUID data 2", "unsigned short", "2 bytes"
     "Project ID - GUID data 3", "unsigned short", "2 bytes"
     "Project ID - GUID data 4", "unsigned char[8]", "8 bytes"
-    "System Identifier", "char[32]", "32 bytes"
-    "Generating Software", "char[32]", "32 bytes"
+    "System Identifier", "char[64]", "64 bytes"
+    "Generating Software", "char[64]", "64 bytes"
     "File Creation Day of Year", "unsigned short", "2 bytes"
     "File Creation Year", "unsigned short", "2 bytes"
     "Version Major", "unsigned char", "1 byte"
@@ -123,7 +123,7 @@ File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesPulse" that can be checked by user software as a quick look validate the file type.
 
 Global Parameters:
-  This is a bit field used to specify certain global properties about the file.
+  This is a bit field used to specify global properties about the file.
 
 Scan ID:
   If this file contains the pulses from a single scan, this field should contain the flight line number, the drive path ID, or the scan site identifier.
@@ -132,10 +132,10 @@ Project ID (GUID data):
   These four fields describe a Globally Unique IDentifier (GUID) to identify a project. These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a unique Scan ID for every scan of the project, every pulse can be uniquely identified.
 
 System Identifier:
-  This information is ASCII data describing the hardware sensor that collected or the process that generated the pulse records in this file. If the character data is less than 31 characters, the remaining data must be null.
+  This information is ASCII data describing the hardware sensor that collected or the process that generated the pulse records in this file. If the character data is less than 64 characters, the remaining data must be null.
 
 Generating Software:
-  This information is ASCII data describing the generating software itself.  This field provides a mechanism for specifying which generating software package and version was used during Pulse file creation (e.g. “TerraScan V-10.8”,  “REALM V-4.2”, " RiPROCESS 1.4.16.51", etc.).  If the character data is less than 31 characters, the remaining data must be null.
+  This information is ASCII data describing the generating software itself.  This field provides a mechanism for specifying which generating software package and version was used during Pulse file creation (e.g. “TerraScan V-10.8”,  “REALM V-4.2”, " RiPROCESS 1.4.16.51", etc.).  If the character data is less than 64 characters, the remaining data must be null.
 
 File Creation Day of Year:
   The day on which this file was created. Day is computed as the Greenwich Mean Time (GMT) day. January 1 is considered day 1.
@@ -147,25 +147,25 @@ Version Number:
   The version number consists of a major and minor field. All minor versions of the same major version will be fully forward and backward compatible.
 
 Header Size:
-  The size, in bytes, of the Pulse Header itself. For version 1.0 this size is 288 bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
+  The size, in bytes, of the Pulse Header itself. In the current version this is 352 bytes. If the header is extended through the addition of data at the end of the header by a new revision of the Pulse specification, the Header Size field will reflect this. 
 
 Offset to Pulse Data:
-  The actual number of bytes from the beginning of the file to the first pulse record data field. For version 1.0 this size is at least 288 bytes. This data offset must be updated if any software adds/removes data to/from the Variable Length Records.
+  The actual number of bytes from the beginning of the file to the first pulse record data field. In the current version this is at least 352 bytes. This data offset must be updated if any software adds/removes Variable Length Records.
 
 Number of Pulses:
   This field contains the total number of pulse records within the file.
 
 Pulse Format:
-  The format of the pulse records. In version 1.0 this is always 0.
+  The format of the pulse records. In the current version this is always 0.
 
 Pulse Size:
   The size, in bytes, of the pulse record. All pulse records within a pulse file have the same format and the same size. If the specified size is larger than implied by the pulse format (e.g. 50 bytes instead of 48 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
 
 Pulse Compression:
-  The compression scheme used for the pulses. In version 1.0 there is no compression and this is always 0.
+  The compression scheme used for the pulses. Currently there is no compression and this is always 0.
 
 Pulse Options:
-  Potential future options. In version 1.0 this is always 0.
+  Potential future options. Must be zero.
 
 Reserved:
   Must be zero.
@@ -177,10 +177,10 @@ Number of Appended Variable Length Records:
   This field contains the current number of AVLRs that are stored the file after the Pulse Records. This number should be updated if the number of AVLRs changes. This number may be set to \"-1\", which indicates that the number of AVLRs is not known and must be determined my parsing the AVLRs starting at the end of the file.
 
 T Scale Factor:
-  This field contains a double-precision floating point value that is used to scale the GPS time stamps T of the pulse records which are integer values. If these integers represent the GPS time in microseconds the scale factor is 1e-6, if thet represent the GPS time as nanoseconds  the scale factor is 1e-9.
+  This field contains a double-precision floating point value that is used to scale the GPS time stamps T of the pulse records which are integer values. If these integers represent the GPS time in microseconds the scale factor should be set to 1e-6, if these integers represent the GPS time as nanoseconds the scale factor should be set to 1e-9.
 
 T Offset:
-  This field contains a double-precision floating point value that is used to offset theGPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset (or a similar high number representing midnight of the day the LiDAR was done). This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
+  This field contains a double-precision floating point value that is used to offset the GPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset (or a similar high number representing midnight of the day the LiDAR was done). This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
 
   timestamp = (T_{record} \* T_{scale}) + T_{offset}
 
@@ -200,7 +200,7 @@ X, Y, and Z Offset:
   z_{coordinate} = (Z_{record} \* z_{scale}) + z_{offset}
 
 Min and Max X, Y, Z:
-  The min and max fields describe the bounding box that includes the start and end points of the sampled parts of the returning waveforms of all pulses.
+  The min and max fields describe the bounding box that includes the first and the last points of the sampled parts of the returning waveforms of all pulses.
 
 Variable Length Records (VLRs):
 ------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ The Pulse Header can be followed by any number of Variable Length Records (VLRs)
     "Record ID", "unsigned long", "4 bytes"
     "Reserved", "unsigned long", "4 bytes"
     "Record Length After Header", "long long", "8 bytes"
-    "Description", "char[32]", "32 bytes"
+    "Description", "char[64]", "64 bytes"
 
 User ID:
   The User ID field of ASCII characters identifies the user which created the Variable Length Record. If the character data is less than 16 characters, the remaining data must be null. The User ID "PulseWaves_Spec" is reserved.
@@ -227,7 +227,7 @@ Reserved:
   Must be zero.
 
 Record Length after Header:
-  The record length is the number of bytes for the record after the end of the standard part of the header. The entire record length is 64 bytes (the header size of the VLR) plus the Record Length after Header.
+  The record length is the number of bytes for the record after the end of the standard part of the header. The entire record length is 96 bytes (the header size of the VLR) plus the Record Length after Header.
 
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
@@ -245,12 +245,12 @@ The Pulse Records are followed by Appended Variable Length Records (AVLRs). The 
     "Record ID", "unsigned long", "4 bytes"
     "Reserved", "unsigned long", "4 bytes"
     "Record Length Before Footer", "long long", "8 bytes"
-    "Description", "char[32]", "32 bytes"
+    "Description", "char[64]", "64 bytes"
 
 Pulse Records:
 ------------------------------------------------------------------------------
 
-All records must be the same type. Unused attributes must be set to the equivalent of zero for the respective data type (e.g. 0.0 for floating-point numbers, NULL for ASCII, 0 for integers). The pulse record format 0 expresses the pulse as an anchor point plus direction vector.
+All records must be the same type. Unused attributes must be set to the equivalent of zero for the respective data type (e.g. 0.0 for floating-point numbers, NULL for ASCII, 0 for integers). The pulse record format 0 expresses the pulse as an anchor point plus target point that is 1000 sampling units away in the direction that the laser pulse was emitted. This makes it easy to represent the pulse in another coordinate system as it only requires to transform the two points, anchor and target.
 
 .. csv-table:: Pulse Record Type 0
     :header: "Item", "Format", "Size"
@@ -258,15 +258,15 @@ All records must be the same type. Unused attributes must be set to the equivale
 
     "GPS timestamp T", "long long", "8 bytes"
     "Offset to Waves", "long long", "8 bytes"
-    "X", "long", "4 bytes"
-    "Y", "long", "4 bytes"
-    "Z", "long", "4 bytes"
-    "dx", "float", "4 bytes"
-    "dy", "float", "4 bytes"
-    "dz", "float", "4 bytes"
+    "Anchor X", "long", "4 bytes"
+    "Anchor Y", "long", "4 bytes"
+    "Anchor Z", "long", "4 bytes"
+    "Target x", "long", "4 bytes"
+    "Target y", "long", "4 bytes"
+    "Target z", "long", "4 bytes"
     "First Returning Sample [sampling units]", "short", "2 bytes"
     "Last Returning Sample [sampling units]", "short", "2 bytes"
-    "Index of Pulse Descriptor", "8 bits (bit 0-7)", "8 bits"
+    "Descriptor Index", "8 bits (bit 0-7)", "8 bits"
     "Reserved", "4 bits (bit 8-11)", "4 bits"
     "Edge of Scan Line", "1 bit (bit 12)", "1 bit"
     "Scan Direction", "1 bit (bit 13)", "1 bit"
@@ -280,20 +280,34 @@ GPS timestamp T:
 Offset to Waves:
   The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the Pulse Descriptor that is indexed by a later field.
 
-X, Y, and Z:
-  The anchor point of the pulse. Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the anchor point. In case the Offset from Optical Center to Anchor Point field of the corresponding Pulse Descriptor is zero, the anchor point coincides with the location of the scanner's optical origin at the time the laser was fired, .
+Anchor X, Anchor Y, and Anchor Z:
+  The anchor point of the pulse. Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the anchor point. In case the Offset from Optical Center to Anchor Point field of the corresponding Pulse Descriptor is zero, the anchor point coincides with the location of the scanner's optical origin (or the pseuso origin) at the time the laser was fired.
 
-  x_{anchor} = (X \* x_{scale}) + x_{offset}
+  x_{anchor} = (X_{anchor} \* x_{scale}) + x_{offset}
 
-  y_{anchor} = (Y \* y_{scale}) + y_{offset}
+  y_{anchor} = (Y_{anchor} \* y_{scale}) + y_{offset}
  
-  z_{anchor} = (Z \* z_{scale}) + z_{offset}
+  z_{anchor} = (Z_{anchor} \* z_{scale}) + z_{offset}
 
-dx, dy, and dz:
-  The pulse direction vector that the laser pulse travels in one sampling unit away from the origin (e.g. towards the ground in an airborne survey). Ihis vector is scaled to the length of units in the chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems).
+Target X, Target Y, and Target Z:
+  Specified the pulse by providing a target point theough which the pulse passes that is situated 1000 sampling units away from the anchor in the direction that the pulse was emitted (e.g. towards the ground in an airborne survey). Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the target point.
 
+  x_{target} = (X_{target} \* x_{scale}) + x_{offset}
+
+  y_{target} = (Y_{target} \* y_{scale}) + y_{offset}
+ 
+  z_{target} = (Z_{target} \* z_{scale}) + z_{offset}
+
+Using anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one sampling unit away from the origin. Ihis vector is then scaled to the length of units of whichever chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) the anchor and target points are in.
+
+  dx = (x_{target} - x_{anchor}) / 1000 = (X_{anchor} - X_{target}) \* x_{scale} / 1000
+
+  dy = (y_{target} - y_{anchor}) / 1000 = (Y_{anchor} - Y_{target}) \* y_{scale} / 1000
+
+  dz = (z_{target} - z_{anchor}) / 1000 = (Z_{anchor} - Z_{target}) \* z_{scale} / 1000
+ 
 First Returning Sample:
-  The distance in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
+  The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
 
   x_{first} = x_{anchor} + first_returning_sample \* dx
 
@@ -347,12 +361,45 @@ Record Length Before Footer:    0
 
 This empty AVLR record *MUST* directly follow the pulse records and it must be the first AVLR in case there are multiple AVLRs. It does not carry a payload but is used to mark the end of the appendable list of AVLRs. This is needed as the exact number of AVLRs may not be specified in the header and needs to be discovered by parsing all AVLRs starting at the end of the file until this one is readed. This Record ID makes no sense when used with an VLR. 
 
+Scanner:
+------------------------------------------------------------------------------
+
+User ID:                            PulseWaves_Spec
+
+Record ID: 	                    n (where 100,001 <= n < 100,255)
+
+The Scanner VLR describes the scanner system that the pulse originated from.
+
+.. csv-table:: Scanner VLR
+    :header: "Item", "Unit", "Format", "Size"
+    :widths: 70, 10, 10, 10
+
+    "Size", "---", "unsigned long", "4 bytes"
+    "Reserved", "---", "unsigned long", "4 bytes"
+    "Instrument", "---", "char[64]", "64 bytes"
+    "Serial", "---", "char[64]", "64 bytes"
+    "Wavelength", "[nanometer]", "float", "4 bytes"
+    "Outgoing Pulse Width", "[nanometer]", "float", "4 bytes"
+    "Beam Diameter at Exit Aperture", "[millimeters]", "float", "4 bytes"
+    "Beam Divergance", "[milliradians]", "float", "4 bytes"
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "Description", "---", "char[64]", "64 bytes"
+
+Size:
+  The byte-aligned size of attributes from and including "Size" to and including "Description".
+
+Reserved:
+  Must be zero.
+
+
 Pulse Descriptor:
 ------------------------------------------------------------------------------
 
 User ID: 	                    PulseWaves_Spec
 
-Record ID: 	                    n (where 100,000 <= n < 116,384)
+Record ID: 	                    n (where 200,001 <= n < 200,255)
 
 The Pulse Descriptor describes the scanner system that the pulse originates from and the (optionally segmented) sampling(s) of the pulse's outgoing and/or returning waveform(s). For example, the outgoing waveform with 32 samples and the returning waveform with 256 samples. Waveforms can also be sampled with multiple sensors. For example, the outgoing waveform with 40 samples and the returning waveform with two sensors of different sensitivity both at 480 samples. Waveforms can also be sampled with multiple discontinuous segments. For example, three successive segments for the returning waveforms, the first with 80, the second with 160, and the last with 80 samples, ... etc. A Pulse Descriptor consists of a "Pulse Description Record" that is immediately followed by a variable number of "Sampling Description Records" that allow a very flexible description of segmentings and samplings of the waveforms with one or multiple sensors.
 
@@ -360,32 +407,27 @@ The Pulse Descriptor describes the scanner system that the pulse originates from
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "---", "unsigned long", "4 bytes"
     "Size", "---", "unsigned long", "4 bytes"
+    "Reserved", "---", "unsigned long", "4 bytes"
     "Optical Center to Anchor Point", "[sampling units]", "long", "4 bytes"
     "Number of Extra Wave Bytes", "---", "unsigned short", "2 bytes"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
     "Compression", "---", "unsigned long", "4 bytes"
     "Scanner ID", "---", "unsigned long", "4 bytes"
-    "Wavelength", "[nanometer]", "float", "4 bytes"
-    "Outgoing Pulse Width", "[nanometer]", "float", "4 bytes"
-    "Beam Diameter at Exit Aperture", "[millimeters]", "float", "4 bytes"
-    "Beam Divergance", "[milliradians]", "float", "4 bytes"
-    "Reserved", "---", "unsigned long", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
-    "Description", "---", "char[32]", "32 bytes"
-
-Version:
-  Must be zero.
+    "Description", "---", "char[64]", "64 bytes"
 
 Size:
-  The byte-aligned size of attributes from "Version" to and including "Description".
+  The byte-aligned size of attributes from and including "Size" to and including "Description".
+
+Reserved:
+  Must be zero.
 
 Optical Center to Anchor Point:
-  This value specifies the constant temporal offset in sampling units from the optical center to the anchor point - given such a constant exists. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is 0x8FFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant multiple of the direction vector but the distance may be specified for each anchor point individually.
+  This value specifies the constant temporal offset in sampling units from the optical center to the anchor point - given such a constant exists. If the value is 0, anchor point and optical center coincide. Otherwise the optical center of a pulse can be found by "walking" backwards from its anchor point as many units of its direction vector as specified here (a conversion step may be necessary in case that anchor point and direction vector are not in a Euclidean coordinate system). If the value is 0x8FFFFFFF there is no constant temporal offset between the optical center and the anchor point. In this case the optical center cannot be "reached" from the anchor point by "walking" a constant multiple of the direction vector but the duration may be specified for each anchor point individually.
 
 Number of Extra Waves Bytes:
   Specified the number of extra bytes that the waves are storing before the actual data describing the waves begins. These extra bytes may or may not be meaningful to the current version of the PulseWaves reader, but knowing their number assures forward-compatibility in case later versions add new attribute information to all waves.
@@ -397,7 +439,7 @@ Sample Units:
   Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Description Records" then the shortest one is specified here.
 
 Compression:
-  In version 1.0 this is always 0.
+  In the current version this is always 0.
 
 Scanner ID:
   In case there are several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by assigning their respective pulse descriptions a different ID. The default is 0.
@@ -427,50 +469,58 @@ Sampling Description Records:
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
-    "Version", "---", "unsigned long", "4 bytes" 
     "Size", "---", "unsigned long", "4 bytes" 
+    "Reserved", "---", "unsigned long", "4 bytes" 
     "Type", "---", "unsigned char", "1 byte" 
     "Channel", "---", "unsigned char", "1 byte" 
-    "Bits for Distance from Anchor", "---", "unsigned char", "1 byte" 
-    "Decimal Digits in Distance", "---", "unsigned char", "1 byte" 
+    "Unused", "---", "unsigned char", "1 byte"
+    "Bits for Duration from Anchor", "---", "unsigned char", "1 byte" 
+    "Scale for Duration from Anchor", "---", "float", "4 bytes"
+    "Offset for Duration from Anchor", "---", "float", "4 bytes"
     "Bits for Number of Segments", "---", "unsigned char", "1 byte" 
     "Bits for Number of Samples", "---", "unsigned char", "1 byte" 
     "Number of Segments", "---", "unsigned short", "2 bytes"
     "Number of Samples", "---", "unsigned long", "4 bytes"
     "Bits per Sample", "---", "unsigned short", "2 byte" 
-    "Compression", "---", "unsigned short", "2 bytes" 
-    "Options", "---", "unsigned short", "2 bytes" 
+    "Lookup Table Index", "---", "unsigned short", "2 bytes" 
     "Sample Units", "[nanosecond]", "float", "4 bytes"
-    "Digitizer Gain", "[Volt]", "double", "8 bytes"
-    "Digitizer Offset", "[Volt]", "double", "8 bytes"
+    "Compression", "---", "unsigned long", "4 bytes" 
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
-    "Description", "---", "char[32]", "32 bytes"
-
-Version:
-  Must be zero.
+    "Description", "---", "char[64]", "64 bytes"
 
 Size:
-  The byte-aligned size of attributes from "Version" to and including "Description".
+  The byte-aligned size of attributes from and including "Size" to and including "Description".
+
+Reserved:
+  Must be zero.
 
 Type:
-  This number is 1 when the sampling describes the outgoing waveform.  This number is 2 when the sampling describes a returning waveform.
+  This number is 1 when the sampling describes the outgoing waveform. This number is 2 when the sampling describes a returning waveform.
 
 Channel:
   This number is 0 when sampling with a single sensor. If the waveform is sampled with h channels the number is between 0 and h-1.
 
-Bits for Distance from Anchor:
-  Specifies how many bits are used in the Waves file to store the integers that express distance from the anchor point to the first sample of each segment in sample units. In case the number of bits is zero the distance between anchor point to the first sample must be zero and there should only be one segment. The only non-zero values supported in version 1.0 are 8 or 16 bits.
+Unused:
+  Must be zero.
 
-Decimal Digits in Distance:
-   Specifies the fractional precision of the numbers that store the distances from the anchor point in sample units. If this value is non-zero then the integers expressing the distances from the anchor have to be multiplied with the appropriate scale factor to get the specified number of decimal digits (e.g. with 0.1 if the value is 1, with 0.01 if the value is 2). If this value is zero then all temporal distances must be integer multiples of the sample units.
+Bits for Duration from Anchor:
+  Specifies how many bits are used in the Waves file to store the integers that express the duration from the anchor point to the start of a segment (i.e. to the first sample of the segment) in sample units. In case the number of bits is zero the duration between anchor point to the first sample must be zero and there should only be one segment. The only non-zero values supported in the current version are 8, 16, or 32 bits.
 
+Scale for Duration from Anchor:
+  A scaling value that adjusts the resolution with which the duration from the anchor point to the start of a segment (i.e. to the first sample of the segment) is stored. A scaling value of 1.0 implies that all durations are integer multiples of the sampling unit. A scaling factor of, for example, 0.1 implies that the resolution is one tenth of the sampling unit.
+
+Offset for Duration from Anchor:
+  An offset value that adds a constant to every duration. Hence, the integer durations  specified in the Waves file are scaled and offset integers. They needs to be multiplied with the scale and have the offset added to get the actual duration d according to this formula:
+
+  d = scale_for_duration_from_anchor \* D + offset_for_duration_from_anchor
+  
 Bits for number of segments:
-  Specifies the number of bits used to store the number of segments in the sampling in case segmenting is variable. If this number is zero the segmenting is fixed and specified by the "Number of Segments" field below. The only non-zero values supported in version 1.0 are 8 or 16 bits.
+  Specifies the number of bits used to store the number of segments in the sampling in case segmenting is variable. If this number is zero the segmenting is fixed and specified by the "Number of Segments" field below. The only non-zero values supported in the current version are 8 or 16 bits.
 
 Bits for number of samples:
-  Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the sampling is fixed and specified by the "Number of Samples" below.  The only non-zero values supported in version 1.0 are 8 or 16 bits.
+  Specifies the number of bits used to store the number of samples in the sampling in case the sampling is variable. If this number is zero the sampling is fixed and specified by the "Number of Samples" below.  The only non-zero values supported in the current version are 8 or 16 bits.
 
 Number of Segments:
   If a fixed segmenting is used because the "Bits for Number of Segments" above is zero, this field specifies the number of segments in the segmenting. If a variable segmenting is used because the "Bits for Number of Segments" above is non-zero, this field is meaningless and should be zero.
@@ -481,23 +531,17 @@ Number of Samples:
 Bits per sample:
   Specifies the number of bits used to store each sample.
 
-Compression:
-  The compression scheme used for the samples. In version 1.0 there is no compression and this is always 0.
-
-Options:
-  Potential future options. In version 1.0 this is always 0.
+Lookup Table Index:
+  Specifies the index to an (optional) table that maps the the sample values to actually measured physical values. In the current version this is not supported and this is always 0.
 
 Sample Units:
-  Specifies the temporal unit of spacing between subsequent samples in nanoseconds (1e-9 seconds) . Example values might be 0.5, 1.0, 2.0 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
+  Specifies the temporal unit of spacing between subsequent samples in nanoseconds (1e-9 seconds). Example values might be 0.5, 1.0, 2.0 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
 
-Digitizer Gain:
-  The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
-
-Digitizer Offset:
-  The gain and offset are used to convert the raw digitized value to an absolute digitizer voltage using the formula:  VOLTS = OFFSET + GAIN \* Raw_Waveform_Amplitude.
+Compression:
+  The compression scheme used for the samples. In the current version there is no compression and this is always 0.
 
 Description:
-  Null terminated text description (optional).  Any characters not used must be null.
+  Null terminated text description (optional). Any characters not used must be null.
 
 
 ==============================================================================
@@ -542,51 +586,51 @@ The header is a mostly place holder of 60 bytes to make it possible that a Waves
 
     "Extra Waves Bytes", "---", "unsigned char[e]", "e bytes"
     "Number of Segments in Sampling 0", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor for Segment 0 of Sampling 0", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 0 of Sampling 0", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 0 from Sampling 0", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 0 from Sampling 0", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."
     "Number of Segments in Sampling 1", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor for Segment 0 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 0 of Sampling 1", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 0 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 0 from Sampling 1", "---", "unsigned char[s1]", "s1 bytes"
-    "Distance from Anchor for Segment 1 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 1 of Sampling 1", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 1 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 1 from Sampling 1", "---", "unsigned char[s0]", "s0 bytes"
-    "Distance from Anchor for Segment 2 of Sampling 1", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 2 of Sampling 1", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 2 from Sampling 1", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 2 from Sampling 1", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."
     "Number of Segments in Sampling 2", "---", "bits", "0, 8, or 16 bits"
-    "Distance from Anchor for Segment 0 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 0 of Sampling 2", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 0 from Sampling 2", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 0 from Sampling 2", "---", "unsigned char[s2]", "s2 bytes"
-    "Distance from Anchor for Segment 1 of Sampling 2", "sample units", "bits", "0, 8, or 16 bits"
+    "Duration from Anchor for Segment 1 of Sampling 2", "sample units", "bits", "0, 8, 16, or 32 bits"
     "Number of Samples in Segment 1 from Sampling 2", "---", "bits", "0, 8, or 16 bits"
     "Samples of Segment 1 from Sampling 2", "---", "unsigned char[s0]", "s0 bytes"
     "...", "...", "...", "..."		
     "...", "...", "...", "..."		
 
 Extra Waves Bytes:
-  This field only exists if the "Number of Extra Waves Bytes" in the corresponding sampling description record is non-zero. This field is currently not used but assures forward compatibility in case that laster versions of the PulseWaves format add additional attributes to all waves. The corresponding number of e extra bytes needs then to be read or be skipped before attempting to read the next field of the waves of a pulse.
+  This field only exists if the "Number of Extra Waves Bytes" in the corresponding sampling description record is non-zero. This field is currently not used but will allow forward compatibility in case that later versions of the PulseWaves format add additional attributes to the waves. The corresponding number of e extra bytes need then to be read or be skipped before attempting to read the next field of the waves of a pulse.
 
 Number of Segments in Sampling m:
   This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling description record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling description record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the "corresponding pulse desciption record  (i.e. "fixed segmentation").
 
-Distance from Anchor for Segment k of Sampling m:
-  This field only exists if the number of "Bits for Distance from Anchor" in the corresponding sampling description record is non-zero. It then specifies the distance from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Distance" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Distance" field is zero the distances between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Distance from Anchor" in the corresponding sampling description record is zero, then this distance is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The distance determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
+Duration from Anchor for Segment k of Sampling m:
+  This field only exists if the number of "Bits for Duration from Anchor" in the corresponding sampling description record is non-zero. It then specifies the duration from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Duration" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Duration" field is zero the durations between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Duration from Anchor" in the corresponding sampling description record is zero, then this duration is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The duration determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
 
-  x_{first_sample} = x_{anchor} + distance_from_anchor \* dx 
+  x_{first_sample} = x_{anchor} + duration_from_anchor \* dx 
 
-  y_{first_sample} = y_{anchor} + distance_from_anchor \* dy 
+  y_{first_sample} = y_{anchor} + duration_from_anchor \* dy 
 
-  z_{first_sample} = z_{anchor} + distance_from_anchor \* dz
+  z_{first_sample} = z_{anchor} + duration_from_anchor \* dz
 
   while the x/y/z coordinates of all following samples can be reached one by one by adding the dx/dy/dz vector again and again.
 
-  One exception is the start of the sampling for the outgoing waveform. Here the distance in sampling units is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" is zero).
+  One exception is the start of the sampling for the outgoing waveform. Here the duration in sampling units is expressed in relation to the origin of the pulse. Nothing changes if anchor point and origin are identical (i.e. if the "Optical Center to Anchor Points" field is zero).
 
 Number of Samples in Segment k from Sampling m:
   This field only exists if the number of "Bits for Number of Samples" in the corresponding sampling description record is non-zero. It then specifies the number of samples in the next segment that can vary from one pulse to the next (i.e. "variable sampling"). If the number of "Bits for Number of Samples" in the corresponding sampling description record is zero, the number of samples is fixed and is specified in the the "Number of Samples" field of the corresponding sampling description (i.e. "fixed sampling").
