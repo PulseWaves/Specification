@@ -205,7 +205,7 @@ Min and Max X, Y, Z:
 Variable Length Records (VLRs):
 ------------------------------------------------------------------------------
 
-The Pulse Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the Pulse Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header.  Each Variable Length Record Header is 64 bytes in length. 
+The Pulse Header can be followed by any number of Variable Length Records (VLRs). The number of VLRs is specified in the “Number of Variable Length Records” field in the Pulse Header. The Variable Length Records must be accessed sequentially since the size of each Variable Length Record is contained in the Variable Length Record Header. Each Variable Length Record Header is 96 bytes in length. 
 
 .. csv-table:: Variable Length Records (VLRs)
     :header: "Item", "Format", "Size"
@@ -235,7 +235,7 @@ Description:
 Appended Variable Length Records (AVLRs):
 ------------------------------------------------------------------------------
 
-The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the Pulse Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. 
+The Pulse Records are followed by Appended Variable Length Records (AVLRs). The AVLRs are in spirit just like the VLRs but carry their payload "in front" of the footer that desribes them. They are accessed sequentially in reverse starting from the end of the file. There is at least one mandatory AVLR that indicates the end of the AVLR array. Because the AVLRs are accessed in reverse this mandatory AVLR is the first AVLR after the pulse records. The number of AVLRs is specified in the “Number of Appended Variable Length Records” field in the Pulse Header. Setting this number to a negative value (e.g. -1) means that their number is not known but must be discovered by parsing the AVLRs starting from the end of the file. Each Appended Variable Length Record Header is 96 bytes in length. 
 
 .. csv-table:: Appended Variable Length Records (AVLRs)
     :header: "Item", "Format", "Size"
@@ -281,7 +281,7 @@ Offset to Waves:
   The offset in bytes from the start of the Waves file to the samples of the waveform. How the pulse is sampled (and more) is described in the Pulse Descriptor that is indexed by a later field.
 
 Anchor X, Anchor Y, and Anchor Z:
-  The anchor point of the pulse. Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the anchor point. In case the Offset from Optical Center to Anchor Point field of the corresponding Pulse Descriptor is zero, the anchor point coincides with the location of the scanner's optical origin (or the pseuso origin) at the time the laser was fired.
+  The anchor point of the pulse. Scaling and offseting the integers Anchor X, Anchor Y, and Anchor Z with the scale and offset from the header gives the actual coordinates of the anchor point. In case the Offset from Optical Center to Anchor Point field of the corresponding Pulse Descriptor is zero, the anchor point coincides with the location of the scanner's optical origin (or the pseuso origin) at the time the laser was fired.
 
   x_{anchor} = (X_{anchor} \* x_{scale}) + x_{offset}
 
@@ -290,7 +290,7 @@ Anchor X, Anchor Y, and Anchor Z:
   z_{anchor} = (Z_{anchor} \* z_{scale}) + z_{offset}
 
 Target X, Target Y, and Target Z:
-  Specified the pulse by providing a target point theough which the pulse passes that is situated 1000 sampling units away from the anchor in the direction that the pulse was emitted (e.g. towards the ground in an airborne survey). Scaling and offseting the integers X, Y, and Z with scale and offset from the header gives the actual coordinates of the target point.
+  Specified the pulse by providing a target point theough which the pulse passes that is situated 1000 sampling units away from the anchor in the direction that the pulse was emitted (e.g. towards the ground in an airborne survey). Scaling and offseting the integers Target X, Target Y, and Target Z with the scale and offset from the header gives the actual coordinates of the target point:
 
   x_{target} = (X_{target} \* x_{scale}) + x_{offset}
 
@@ -298,7 +298,7 @@ Target X, Target Y, and Target Z:
  
   z_{target} = (Z_{target} \* z_{scale}) + z_{offset}
 
-Using anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one sampling unit away from the origin. Ihis vector is then scaled to the length of units of whichever chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) the anchor and target points are in.
+Using the difference between anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one thousand sampling units. Dividing this vector by one thousand results results in a direction vector that is scaled in the length of units of whichever chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) the anchor and target points are in and points away from the origin of the laser:
 
   dx = (x_{target} - x_{anchor}) / 1000 = (X_{anchor} - X_{target}) \* x_{scale} / 1000
 
