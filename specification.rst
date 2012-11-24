@@ -325,7 +325,7 @@ Last Returning Sample:
   z_{last} = z_{anchor} + last_returning_sample \* dz
 
 Index of Pulse Descriptor:
-  The record ID minus 100,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 255 different descriptors can be specified. A pulse descriptor consist of a "Composition Record" followed by a variable number "Sampling Records".
+  The record ID minus 200,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 255 different descriptors can be specified. A pulse descriptor consist of a "Composition Record" followed by a variable number "Sampling Records".
 
 Reserved:
   Must be zero.
@@ -409,29 +409,37 @@ Wave Length:
   The physical wavelength of the laser in nanometers.
 
 Outgoing Pulse Width:
-  The width of the outgoing pulse in nanometer as defined by the full width at half maximum (FWHM). The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
+  The width of the outgoing pulse as defined by the full width at half maximum (FWHM) in nanometer. The exact width and intensity tends to vary from pulse per pulse which is why the outgoing waveform is often sampled and stored per pulse as well.
 
 Scan Pattern:
+  Stores the type of scanning pattern used: 0 = undefined, 1 = oscillating, 2 = line, 3 = conic
 
 Number of Mirror Facets:
+  Stores the number of mirror facets for a line scanner.
 
 Scan Frequency:
+  Stores the scan frequency at which the scanner was operating in Hertz.
 
 Scan Angle Min:
+  Stores the minimal scanner angle at which the scanner was operating in angular degree.
 
 Scan Angle Max:
+  Stores the maximal scanner angle at which the scanner was operating in angular degree.
 
 Pulse Frequency:
+  Stores the pulse frequency at which the scanner was operating in Kilohertz.
 
 Beam Diameter at Exit Aperture:
-  The diameter of the laser beam in millimeter in the moment it leaves the scanner hardware.
+  The diameter of the laser beam in the moment it leaves the scanner hardware in millimeter.
 
 Beam Divergance:
   The divergance of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
 
 Minimal Range:
+  Stores the minimal range at which the scanner is able to operate in meters.
 
 Maximal Range:
+  Stores the maximal range at which the scanner is able to operate in meters.
 
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
@@ -481,7 +489,7 @@ Sample Units:
   Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Records" then the shortest common multiple is specified here.
 
 Scanner Index:
-  There may be several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by letting their pulse descriptors index a different Scanner VLR. The default is 0 which indictes that no Scanner VLR is being specified.
+  There may be several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by letting their pulse descriptors index a different scanner. The default is 0 which indicates that no particular scanner is specified. Up to 255 different scanners can be specified.
 
 Compression:
   In the current version this is always 0.
@@ -539,7 +547,9 @@ Scale for Duration from Anchor:
   A scaling value that adjusts the resolution with which the duration from the anchor point to the start of a segment (i.e. to the first sample of the segment) is stored. A scaling value of 1.0 implies that all durations are integer multiples of the sampling unit. A scaling factor of, for example, 0.1 implies that the resolution is one tenth of the sampling unit.
 
 Offset for Duration from Anchor:
-  An offset value that adds a constant to every duration. Hence, the integer durations  specified in the Waves file are scaled and offset integers. They needs to be multiplied with the scale and have the offset added to get the actual duration d according to this formula:
+  An offset value that adds a constant to every duration that can be used to avoid storing the same large offset with every duration. An offset value of 3000.0, for example, implies that all durations are implicitely 3000 sampling units longer than specified in the Waves file.
+
+Hencem, the durations from anchor values that may be specified in the Waves file are scaled and offset integers and need to be multiplied with the scale and have the offset added to get the actual duration according to this formula:
 
   d = scale_for_duration_from_anchor \* D + offset_for_duration_from_anchor
   
@@ -559,7 +569,7 @@ Bits per sample:
   Specifies the number of bits used to store each sample.
 
 Lookup Table Index:
-  Specifies the index to an (optional) table that maps the the sample values to actually measured physical values. In the current version this is not supported and this is always 0.
+  Specifies the index to an (optional) table that maps the the sample values to actually measured physical values. In the current version this is not supported and this value should always be 0.
 
 Sample Units:
   Specifies the temporal unit of spacing between subsequent samples in nanoseconds (1e-9 seconds). Example values might be 0.5, 1.0, 2.0 and so on, representing digitizer frequencies of 2 GHz, 1 GHz and 500 MHz respectively.
@@ -647,7 +657,7 @@ Number of Segments in Sampling m:
   This field only exists if the number of "Bits for Number of Segments" in the corresponding sampling record is non-zero. It then specifies the number of segments in this sampling that can vary from one pulse to the next (i.e. "variable segmentation"). If the number of "Bits for Number of Segments" in the corresponding sampling record is zero, the number of segments is fixed and is specified in the "Number of Sements" field of the corresponding sampling record (i.e. "fixed segmentation").
 
 Duration from Anchor for Segment k of Sampling m:
-  This field only exists if the number of "Bits for Duration from Anchor" in the corresponding sampling record is non-zero. It then specifies the duration from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Decimal Digits in Duration" field, this number may need to be scaled by 0.1 or 0.01. If the "Decimal Digits in Duration" field is zero the durations between the anchor point and the first sample can only be an integer multiple of the sample unit. If the number of "Bits for Duration from Anchor" in the corresponding sampling record is zero, then this duration is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The duration determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
+  This field only exists if the number of "Bits for Duration from Anchor" in the corresponding sampling record is non-zero. It then specifies the duration from the anchor point to the first sample in sample units. Depending on the value of the corresponding "Scale for Duration from Anchor" and "Offset for Duration from Anchor" fields, this number may need to be scaled and offset by the respective amounts. If the "Scale for Duration from Anchor" field is 1.0 then the durations between the anchor point and the first sample can only be integer multiples of the sample unit. If the number of "Bits for Duration from Anchor" in the corresponding sampling record is zero, then this duration is zero. This means that the anchor point coincides with the first sample of the sampling. This can only be the case if the sampling consists of a single segment (or else all segments would start at the anchor). The duration determines the x/y/z coordinate of the 3D location of the first sample via the following calculation:
 
   x_{first_sample} = x_{anchor} + duration_from_anchor \* dx 
 
