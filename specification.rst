@@ -13,7 +13,7 @@ Date:
 initial draft created on Dec 23th, 2011
 
 ***************************************************************************************
- PulseWaves - Full Waveform LiDAR Specification (version 0.2)
+ PulseWaves - Full Waveform LiDAR Specification (version 0.3)
 ***************************************************************************************
 
 .. class:: heading4
@@ -79,7 +79,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     
     "File Signature (“PulseWavesPulse”)", "char[16]", "16 bytes"
     "Global Parameters", "unsigned long", "4 bytes"
-    "Scan Index", "unsigned long", "4 bytes"
+    "File Source ID", "unsigned long", "4 bytes"
     "Project ID - GUID data 1", "unsigned long", "4 bytes"
     "Project ID - GUID data 2", "unsigned short", "2 bytes"
     "Project ID - GUID data 3", "unsigned short", "2 bytes"
@@ -94,9 +94,9 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Offset to Pulse Data", "long long", "8 bytes"
     "Number of Pulses", "long long", "8 bytes"
     "Pulse Format", "unsigned short", "2 bytes"
+    "Pulse Attributes", "unsigned long", "4 bytes"
     "Pulse Size", "unsigned long", "4 bytes"
     "Pulse Compression", "unsigned long", "4 bytes"
-    "Pulse Options", "unsigned long", "4 bytes"
     "Reserved", "long long", "8 bytes"
     "Number of Variable Length Records", "unsigned long", "4 bytes"
     "Number of Appended Variable Length Records", "long", "4 bytes"
@@ -125,8 +125,8 @@ File Signature:
 Global Parameters:
   This is a bit field used to specify global properties about the file.
 
-Scan Index:
-  If this file contains the pulses from a single scan, this field should contain the flight line number, the drive path ID, or the scan site identifier.
+File Source ID:
+  If this file contains the pulses from a single flight line or a single scan, then this field should contain the corresponding flight line number, the drive path ID, or the scan site identifier. To be meaningful this ID should be non-zero because a File Source ID of zero is meant to imply that the file is result of a "merge" operation and that each pulse should store a (non-zero) Pulse Source ID attribute. 
 
 Project ID (GUID data):
   These four fields describe a Globally Unique IDentifier (GUID) to identify a project. These fields are at the discretion of processing software. They should be the same for all files associated with a unique project. By assigning a Project ID and using a unique Scan Index for every scan of the project, every pulse can be uniquely identified.
@@ -158,14 +158,14 @@ Number of Pulses:
 Pulse Format:
   The format of the pulse records. In the current version this is always 0.
 
+Pulse Attributes:
+  A bit mask that allows specifying up to 32 additional attributes that can be defined in future versions of the specification. These attributes will directly follow the pulse record in the order defined by the appearance of 1 bits when reading the bitmask from lowest to highest bit. Currently two additional attributes are defined: a 16 bit pulse source ID (0x00000001) and a 32 bit pulse source ID (0x00000002).
+
 Pulse Size:
-  The size, in bytes, of the pulse record. All pulse records within a pulse file have the same format and the same size. If the specified size is larger than implied by the pulse format (e.g. 50 bytes instead of 48 bytes for format 0) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
+  The size, in bytes, of the pulse record. All pulse records within a pulse file have the same format, the same attributes, the same extra bytes and the same size. If the specified size is larger than implied by the pulse format plus attributes (e.g. 50 bytes instead of 48 bytes for format 0 without attributes) the remaining bytes are user-specific “extra bytes”. The meaning of such “extra bytes” can be described with an Extra Bytes VLR (see Table 12 and Table 24) to make them useful to others as well.
 
 Pulse Compression:
   The compression scheme used for the pulses. Currently there is no compression and this is always 0.
-
-Pulse Options:
-  Potential future options. Must be zero.
 
 Reserved:
   Must be zero.
