@@ -18,7 +18,7 @@ initial draft created on Dec 23th, 2011
 
 .. class:: heading4
     
-This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.2 version. The current draft is expected to be fairly close to the first actual 1.0 releas version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
+This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.3 version. The current draft is expected to be fairly close to the first actual 1.0 releas version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
 
 The PulseWaves format consists of two binary files: The *Pulse* files (\*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (\*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (\*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
@@ -180,18 +180,20 @@ T Scale Factor:
   This field contains a double-precision floating point value that is used to scale the GPS time stamps T of the pulse records which are integer values. If these integers represent the GPS time in microseconds the scale factor should be set to 1e-6, if these integers represent the GPS time as nanoseconds the scale factor should be set to 1e-9.
 
 T Offset:
-  This field contains a double-precision floating point value that is used to offset the GPS time stamps T of the pulse records after they were scaled. If the timestamps are GPS week then 0 is a suitable offset. If the timestamps are standard GPS time in seconds then 1 billion is a suitable offset (or a similar high number representing midnight of the day the LiDAR was done). This is because standard GPS time measures the time since January 6th 1971 in seconds and that number has recently passed 1 billion seconds.
+  This field contains a double-precision floating point value that is used to offset the GPS time stamps T of the pulse records after they were scaled. If the timestamps are in GPS seconds of week and no GPS week information is available then a suitable offset is zero. If the timestamps are in standard GPS time then a suitable offset is 1 billion (or a similar high number). This is because standard GPS time is a uniformly counting time measure in seconds since midnight of January 5th to January 6th 1980 and that number has recently passed 1 billion seconds. The actual time stamps t could then be computed with
 
-  timestamp = (T_{record} \* T_{scale}) + T_{offset}
+  t = (T_{record} \* T_{scale}) + T_{offset}
+
+  But careful, we advise against doing a conversion to floating-point for standard GPS time. A standard 64 bit floating-point number is not able to store the resulting without precision loss when T_{offset} is aforementioned large number.
 
 Min and Max T:
   The min and max of the integer timestamps stored in the T field of all pulses. To convert the min and max numbers to actual GPS times use the formula above.
 
 X, Y, and Z Scale Factors:
-  The scale factor fields contain double-precision floating point values used to scale the X, Y, and Z long values of the pulse records. If the actual x, y, z coordinates have two decimal point values, then each scale factor will contain the number 0.01.   
+  The scale factor fields contain double-precision floating point values used to scale the X, Y, and Z long values of the pulse records. If the actual x, y, z coordinates are in meter and have centimeter resolution (e.g. two decimal digits) then each scale factor will contain the number 0.01.   
 
 X, Y, and Z Offset:
-  The offset fields contain double-precision floating point values used to offset  the X, Y, and Z long values of the pulse records. The formulas shown below convert from the X, Y, and Z long values of each pulse to the actual x, y, z coordinates.
+  The offset fields contain double-precision floating point values used to offset the X, Y, and Z long values of the pulse records. The formulas shown below convert from the X, Y, and Z long values of each pulse to the actual x, y, z coordinates.
 
   x_{coordinate} = (X_{record} \* x_{scale}) + x_{offset}
 
@@ -298,7 +300,7 @@ Target X, Target Y, and Target Z:
  
   z_{target} = (Z_{target} \* z_{scale}) + z_{offset}
 
-Using the difference between anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one thousand sampling units. Dividing this vector by one thousand results results in a direction vector that is scaled in the length of units of whichever chosen world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) the anchor and target points are in and points away from the origin of the laser:
+Using the difference between anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one thousand sampling units. Dividing this vector by one thousand results results in a direction vector that is scaled in the length of units of the world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) chosen for anchor and target points and points away from the origin of the laser:
 
   dx = (x_{target} - x_{anchor}) / 1000 = (X_{anchor} - X_{target}) \* x_{scale} / 1000
 
@@ -340,10 +342,10 @@ Mirror Facet:
   These two bits encode which mirror facet the pulse is reflected from. These two bits do not change as long as subsequent pulses are from the same mirror facet of the scanner.
 
 Intensity:
-  This value characterizes the returned intensity of the pulse for easy understanding and quick visualization purposes. It should be properly scaled so that it can be used to color the pulse for previewing purposes. The value may or may not have a physical meaning.
+  This value characterizes the returned intensity of the pulse for easy understanding and quick visualization purposes. It should be properly scaled so that it can be used to color the pulse for previewing purposes. It could, for example, be scaled according to the highest digitized value on the returning wave. The value may or may not have a physical meaning.
 
 Classification:
-  This value us used to (pre-)classify entire pulses into a yet to ve established metric. Possible are the number of waveform peaks or a simple roof, forest, grass, road, water,for quick understanding.
+  This value could be used to (pre-)classify entire pulses into a yet to be established metric. Possible are the number of waveform peaks or a simple roof, forest, grass, road, water flagging to provide some insight and understanding of the attached waveforms when previewing only the pulse data.
 
 Defined Variable Length Records (VLRs or AVLRs):
 ------------------------------------------------------------------------------
@@ -387,7 +389,7 @@ The Scanner VLR describes the scanner system that the pulse originated from.
     "Scan Angle Max", "[degree], "float", "4 bytes"
     "Pulse Frequency", "[kilohertz], "float", "4 bytes"
     "Beam Diameter at Exit Aperture", "[millimeters]", "float", "4 bytes"
-    "Beam Divergance", "[milliradians]", "float", "4 bytes"
+    "Beam Divergence", "[milliradians]", "float", "4 bytes"
     "Minimal Range", "[meter]", "float", "4 bytes"
     "Maximal Range", "[meter]", "float", "4 bytes"
     "...", "...", "...", "..."
@@ -432,8 +434,8 @@ Pulse Frequency:
 Beam Diameter at Exit Aperture:
   The diameter of the laser beam in the moment it leaves the scanner hardware in millimeter.
 
-Beam Divergance:
-  The divergance of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
+Beam Divergence:
+  The divergence of the laser beam in milliradians @ 1/e2. [or should we use @ 1/e]?
 
 Minimal Range:
   Stores the minimal range at which the scanner is able to operate in meters.
