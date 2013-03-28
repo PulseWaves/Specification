@@ -93,7 +93,7 @@ The waveform samples of the pulses that are reported in the Pulse Records are st
     "Header Size", "unsigned short", "2 bytes"
     "Offset to Pulse Data", "long long", "8 bytes"
     "Number of Pulses", "long long", "8 bytes"
-    "Pulse Format", "unsigned short", "2 bytes"
+    "Pulse Format", "unsigned long", "4 bytes"
     "Pulse Attributes", "unsigned long", "4 bytes"
     "Pulse Size", "unsigned long", "4 bytes"
     "Pulse Compression", "unsigned long", "4 bytes"
