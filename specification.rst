@@ -365,7 +365,7 @@ Record ID:                      4,294,967,295 (0xFFFFFFFF)
 
 Record Length Before Footer:    0
 
-This empty AVLR record *MUST* directly follow the pulse records and it must be the first AVLR in case there are multiple AVLRs. It does not carry a payload but is used to mark the end of the appendable list of AVLRs. This is needed as the exact number of AVLRs may not be specified in the header and needs to be discovered by parsing all AVLRs starting at the end of the file until this one is readed. This Record ID makes no sense when used with an VLR. 
+This empty AVLR record *must* directly follow the pulse records and it must be the first AVLR in case there are multiple AVLRs. It does not carry a payload but is used to mark the end (as seen in reverse) of the appendable list of AVLRs. This is needed as the exact number of AVLRs may not be specified in the header and needs to be discovered by parsing all AVLRs starting *at the end* of the file until this one is reached. This Record ID makes no sense when used with an VLR. 
 
 Scanner:
 ------------------------------------------------------------------------------
@@ -586,6 +586,66 @@ Compression:
 Description:
   Null terminated text description (optional). Any characters not used must be null.
 
+
+GeoKeyDirectory (optional):
+------------------------------------------------------------------------------
+
+User ID:                         PulseWaves_Proj
+
+Record ID: 	                     34735
+
+This record contains the key values that define the coordinate system. A complete description can be found in the GeoTIFF format specification. Here is a summary from a programmatic point of view for someone interested in implementation. The GeoKeyDirectory is defined as an array of unsigned short values where the first 4 shorts describe the number of keys and the remaining groups of four shorts are the actual keys. See the LAS 1.4 specification (rev 11) for details.
+
+
+GeoDoubleParams (optional):
+------------------------------------------------------------------------------
+
+User ID:                         PulseWaves_Proj
+
+Record ID:                       34736
+
+This record is simply an array of doubles that contain values that may be referenced by tags in the GeoKeyDirectory record. See the LAS 1.4 specification (rev 11) for additional details.
+
+
+GeoAsciiParams (optional):
+------------------------------------------------------------------------------
+
+User ID:                         PulseWaves_Proj
+
+Record ID:                       34737
+
+This record is simply an array of ASCII data. It contains one or many strings separated by null or space characters which are referenced by position from tags in the GeoKeyDirectory. See the LAS 1.4 specification (rev 11) for additional details.
+
+
+OGC Math WKT (optional):
+------------------------------------------------------------------------------
+
+User ID:                         PulseWaves_Proj
+
+Record ID:                       2111
+
+This record contains the textual data representing a Math Transform WKT as defined in section 7 of the Coordinate Transformation Services Spec, with the following notes:
+
+    1) The OGC Math Transform WKT VLR data shall be a null-terminated string.
+    2) The OGC Math Transform WKT VLR data shall be considered UTF-8.
+    3) The OGC Math Transform WKT VLR data shall be considered C locale-based, and no localization of the numeric strings within the WKT should be performed.
+
+See the LAS 1.4 specification (rev 11) for additional details.
+
+OGC Coordinate System WKT (optional):
+------------------------------------------------------------------------------
+
+User ID:                         PulseWaves_Proj
+
+Record ID:                       2112
+
+This record contains the textual data representing a Coordinate System WKT as defined in section 7 of the Coordinate Transformation Services Spec, with the following notes:
+
+    1) The OGC Math Transform WKT VLR data shall be a null-terminated string.
+    2) The OGC Math Transform WKT VLR data shall be considered UTF-8.
+    3) The OGC Math Transform WKT VLR data shall be considered C locale-based, and no localization of the numeric strings within the WKT should be performed.
+
+See the LAS 1.4 specification (rev 11) for additional details.
 
 ==============================================================================
 The Waves file (\*.wvs)
