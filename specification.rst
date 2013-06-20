@@ -316,6 +316,8 @@ First Returning Sample:
   y_{first} = y_{anchor} + first_returning_sample \* dy
 
   z_{first} = z_{anchor} + first_returning_sample \* dz
+  
+  For pulses that do *not* have a returning waveform this value must be set to zero.
 
 Last Returning Sample:
   Same concept as the First Returning Sample but for the last one:
@@ -325,6 +327,8 @@ Last Returning Sample:
   y_{last} = y_{anchor} + last_returning_sample \* dy
 
   z_{last} = z_{anchor} + last_returning_sample \* dz
+  
+  For pulses that do *not* have a returning waveform this value must be set to zero.
 
 Index of Pulse Descriptor:
   The record ID minus 200,000 of the "PulseWaves_Spec" VLR or AVLR that contains a description of this laser pulse and the exact details how its waveform is sampled in form of a "Pulse Descriptor". Up to 255 different descriptors can be specified. A pulse descriptor consist of a "Composition Record" followed by a variable number "Sampling Records".
