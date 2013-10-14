@@ -13,12 +13,12 @@ Date:
 initial draft created on Dec 23th, 2011
 
 ***************************************************************************************
- PulseWaves - Full Waveform LiDAR Specification (version 0.3 revision 7)
+ PulseWaves - Full Waveform LiDAR Specification (version 0.3 revision 8)
 ***************************************************************************************
 
 .. class:: heading4
     
-This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.3 version (revision 7). The current draft is expected to be fairly close to the first actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
+This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.3 version (revision 8). The current draft is expected to be fairly close to the first actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
 
 The PulseWaves format consists of two binary files: The *Pulse* files (\*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (\*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (\*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
@@ -408,8 +408,10 @@ Reserved:
   Must be zero.
 
 Instrument:
+  Null terminated text description of the instrument (e.g. "Optech ALTM Pegasus", "RIEGL Q1560 crossfire", "Leica ALS70 with WDM65", "AHAB Hawk II", ...).  Any characters not used must be null.
 
 Serial:
+  Null terminated text description of the instrument's unqiue serial number.  Any characters not used must be null.
 
 Wave Length:
   The physical wavelength of the laser in nanometers.
@@ -555,9 +557,9 @@ Scale for Duration from Anchor:
 Offset for Duration from Anchor:
   An offset value that adds a constant to every duration that can be used to avoid storing the same large offset with every duration. An offset value of 3000.0, for example, implies that all durations are implicitely 3000 sampling units longer than specified in the Waves file.
 
-Hencem, the durations from anchor values that may be specified in the Waves file are scaled and offset integers and need to be multiplied with the scale and have the offset added to get the actual duration according to this formula:
+Hence, the durations from anchor values that may be specified in the Waves file are scaled and offset integers and need to be multiplied with the scale and have the offset added to get the actual duration according to this formula:
 
-  d = scale_for_duration_from_anchor \* D + offset_for_duration_from_anchor
+d = scale_for_duration_from_anchor \* D + offset_for_duration_from_anchor
   
 Bits for number of segments:
   Specifies the number of bits used to store the number of segments in the sampling in case segmenting is variable. If this number is zero the segmenting is fixed and specified by the "Number of Segments" field below. The only non-zero values supported in the current version are 8 or 16 bits.
@@ -585,6 +587,47 @@ Compression:
 
 Description:
   Null terminated text description (optional). Any characters not used must be null.
+
+Lookup Table:
+------------------------------------------------------------------------------
+
+User ID: 	                    PulseWaves_Spec
+
+Record ID: 	                    n (where 300,001 <= n < 300,255)
+
+Each Lookup Table describes the mapping from the sample values of a sampling to the actual physical measurements stored in standard float representation. The 8 bit, 12 bit, or 16 bit sample values stored in the Waves file that represent the digitized waveform will usually not have a simple linear scale. By providing an explicit lookup table it can be exactly defined what, for example, the meaning of a sample with value 67 is and how much stronger the measured signal was compared with a nearby sample with value 54.
+
+.. csv-table:: Composition Record 
+    :header: "Item", "Unit", "Format", "Size"
+    :widths: 70, 10, 10, 10
+
+    "Size", "---", "unsigned long", "4 bytes"
+    "Reserved", "---", "unsigned long", "4 bytes"
+    "Number of Entries", "---", "unsigned long", "4 bytes"
+    "Data Type of Entries", "---", "unsigned short", "2 bytes"
+    "Measured Unit", "---", "unsigned short", "2 bytes"
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "Description", "---", "char[64]", "64 bytes"
+
+Size:
+  The byte-aligned size of attributes from and including "Size" to and including "Description".
+
+Reserved:
+  Must be zero.
+
+Number of Entries:
+  This value specifies the number of the lookup table.
+
+Data Type of Entries:
+  Must be set to 9 indicating data of type float.
+
+Measured Unit:
+  An enumeration of what the entries measure (still needs to be defined).
+
+Description:
+  Null terminated text description (optional).  Any characters not used must be null.
 
 
 GeoKeyDirectory (optional):
