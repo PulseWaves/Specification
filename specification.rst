@@ -588,24 +588,53 @@ Compression:
 Description:
   Null terminated text description (optional). Any characters not used must be null.
 
-Lookup Table:
+Table:
 ------------------------------------------------------------------------------
 
 User ID: 	                    PulseWaves_Spec
 
 Record ID: 	                    n (where 300,001 <= n < 300,255)
 
-Each Lookup Table describes the mapping from the sample values of a sampling to the actual physical measurements stored in standard float representation. The 8 bit, 12 bit, or 16 bit sample values stored in the Waves file that represent the digitized waveform will usually not have a simple linear scale. By providing an explicit lookup table it can be exactly defined what, for example, the meaning of a sample with value 67 is and how much stronger the measured signal was compared with a nearby sample with value 54.
+Each Table VLR contains one or more Lookup Tables that describe a mapping from the sample values of a sampling to the actual physical measurements or the system response corrections. Currently these values are always stored in standard IEEE 32-bit float representation with hooks being in place in case this needs to be generalized later. The 8 bit, 12 bit, or 16 bit sample values stored in the Waves file that represent the digitized waveform will usually not have a simple linear scale. By providing an explicit lookup table with 256, 4096, or 65536 entries it can be exactly defined what, for example, the meaning of a sample with value 67 is and how much stronger the measured signal was compared with a nearby sample that had value 54.
 
-.. csv-table:: Composition Record 
+.. csv-table:: Table Record 
     :header: "Item", "Unit", "Format", "Size"
     :widths: 70, 10, 10, 10
 
     "Size", "---", "unsigned long", "4 bytes"
     "Reserved", "---", "unsigned long", "4 bytes"
-    "Number of Entries", "---", "unsigned long", "4 bytes"
-    "Data Type of Entries", "---", "unsigned short", "2 bytes"
-    "Measured Unit", "---", "unsigned short", "2 bytes"
+    "Number Tables", "---", "unsigned long", "4 bytes"
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "...", "...", "...", "..."
+    "Description", "---", "char[64]", "64 bytes"
+    "Tables[0]", "Lookup Table", "variable"
+    "...", "...", "...", "..."
+    "Tables[Number Tables-1]", "Lookup Table", "variable"
+
+Size:
+  The byte-aligned size of attributes from and including "Size" to and including "Description".
+
+Reserved:
+  Must be zero.
+
+Number Tables:
+  This value specifies the number of lookup tables that is stored directly after the description record.
+
+Description:
+  Null terminated text description (optional).  Any characters not used must be null.
+
+
+.. csv-table:: Lookup Table Record 
+    :header: "Item", "Unit", "Format", "Size"
+    :widths: 70, 10, 10, 10
+
+    "Size", "---", "unsigned long", "4 bytes"
+    "Reserved", "---", "unsigned long", "4 bytes"
+    "Number Entries", "---", "unsigned long", "4 bytes"
+    "Unit of Measurement", "---", "unsigned short", "2 bytes"
+    "Data Type", "---", "unsigned char", "1 byte"
+    "Options", "---", "unsigned char", "1 byte"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -617,18 +646,20 @@ Size:
 Reserved:
   Must be zero.
 
-Number of Entries:
-  This value specifies the number of the lookup table.
+Number Entries:
+  This value specifies the number of entries in the lookup table. This will be typically 256, 1024, 4096, or 65536.
 
-Data Type of Entries:
-  Must be set to 9 indicating data of type float.
-
-Measured Unit:
+Unit of Measurement:
   An enumeration of what the entries measure (still needs to be defined).
+  
+Data Type:
+  Must be set to 8 indicating data of type float.
 
+Options:
+  Must be set to 0.
+  
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
-
 
 GeoKeyDirectory (optional):
 ------------------------------------------------------------------------------
