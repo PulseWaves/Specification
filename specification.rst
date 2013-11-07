@@ -13,12 +13,12 @@ Date:
 initial draft created on Dec 23th, 2011
 
 ***************************************************************************************
- PulseWaves - Full Waveform LiDAR Specification (version 0.3 revision 8)
+ PulseWaves - Full Waveform LiDAR Specification (version 0.3 revision 9)
 ***************************************************************************************
 
 .. class:: heading4
     
-This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.3 version (revision 8). The current draft is expected to be fairly close to the first actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
+This document describes the *PulseWaves* specification - an open, stand-alone, vendor-neutral, LAS-compatible data exchange format for storing geo-referenced full waveform LiDAR. The document is distributed for the purpose of discussing, evaluating, and brain-storming the PulseWaves format in its current 0.3 version (revision 9). The current draft is expected to be fairly close to the first actual 1.0 version is released. One of the design goals is to remain forward compatible and allow for changing demands such as additional or different fields in the data records without breaking PulseWaves readers that only implement olders version of the specification.
 
 The PulseWaves format consists of two binary files: The *Pulse* files (\*.pls) describe the emitted laser pulses with geo-referenced origin and direction. The *Waves* files (\*.wvs) contain the samples of the outgoing and returning waveform shapes for the relevant sections of these pulses (e.g. in the vicinity of where something was hit). The PulseWaves format is meant to be compatible with the LAS format of the ASPRS. These *Laser* files (\*.las) describe discrete returns with attributes where either the sensor hardware or some post-processing software have computed that something was "hit" by the laser beam. Via the GPS time it is possible to find the PulseWaves that the Laser returns are "attached" to.
 
@@ -635,6 +635,7 @@ Description:
     "Unit of Measurement", "---", "unsigned short", "2 bytes"
     "Data Type", "---", "unsigned char", "1 byte"
     "Options", "---", "unsigned char", "1 byte"
+    "Compression", "---", "unsigned long", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -650,7 +651,7 @@ Number Entries:
   This value specifies the number of entries in the lookup table. This will be typically 256, 1024, 4096, or 65536.
 
 Unit of Measurement:
-  An enumeration of what the entries measure (still needs to be defined).
+  An enumeration of what the entries measure (0 = undefined, 1 = intensity correction, 2 = range correction).
   
 Data Type:
   Must be set to 8 indicating data of type float.
@@ -658,6 +659,9 @@ Data Type:
 Options:
   Must be set to 0.
   
+Compression:
+  Must be set to 0. May be added in the future to compress large tables.
+
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
 
