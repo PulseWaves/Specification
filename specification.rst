@@ -471,8 +471,8 @@ The Pulse Descriptor describes the (optionally segmented) sampling(s) of the pul
     "Number of Extra Wave Bytes", "---", "unsigned short", "2 bytes"
     "Number of Samplings", "---", "unsigned short", "2 bytes"
     "Sample Units", "[nanoseconds]", "float", "4 bytes"
-    "Scanner Index", "---", "unsigned long", "4 bytes"
     "Compression", "---", "unsigned long", "4 bytes"
+    "Scanner Index", "---", "unsigned long", "4 bytes"
     "...", "...", "...", "..."
     "...", "...", "...", "..."
     "...", "...", "...", "..."
@@ -496,11 +496,11 @@ Number of Samplings:
 Sample Units:
   Specifies the temporal unit of sampling in nanoseconds that sample the waveform. One nanosecond (1e-9 seconds) is 1,000 picoseconds (1e-12 seconds). If multiple sample resolutions are used by the following "Sampling Records" then the shortest common multiple is specified here.
 
-Scanner Index:
-  There may be several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by letting their pulse descriptors index a different scanner. The default is 0 which indicates that no particular scanner is specified. Up to 255 different scanners can be specified.
-
 Compression:
   In the current version this is always 0.
+
+Scanner Index:
+  There may be several laser scanning units that are simultaneously storing their output to the same PulseWaves file. They can be then be distinguished by letting their pulse descriptors index a different scanner. The default is 0 which indicates that no particular scanner is specified. Up to 255 different scanners can be specified.
 
 Description:
   Null terminated text description (optional).  Any characters not used must be null.
