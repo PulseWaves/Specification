@@ -302,11 +302,11 @@ Target X, Target Y, and Target Z:
 
 Using the difference between anchor and target point, a pulse direction vector (dx,dy,dz) can be computed that expresses the distance that the laser pulse travels in one thousand sampling units. Dividing this vector by one thousand results results in a direction vector that is scaled in the length of units of the world coordinate system (e.g. meters for UTM, decimal degrees for long/lat, feet for US stateplane reference systems) chosen for anchor and target points and points away from the origin of the laser:
 
-  dx = (x_{target} - x_{anchor}) / 1000 = (X_{anchor} - X_{target}) \* x_{scale} / 1000
+  dx = (x_{target} - x_{anchor}) / 1000 = (X_{target} - X_{anchor}) \* x_{scale} / 1000
 
-  dy = (y_{target} - y_{anchor}) / 1000 = (Y_{anchor} - Y_{target}) \* y_{scale} / 1000
+  dy = (y_{target} - y_{anchor}) / 1000 = (Y_{target} - Y_{anchor}) \* y_{scale} / 1000
 
-  dz = (z_{target} - z_{anchor}) / 1000 = (Z_{anchor} - Z_{target}) \* z_{scale} / 1000
+  dz = (z_{target} - z_{anchor}) / 1000 = (Z_{target} - Z_{anchor}) \* z_{scale} / 1000
  
 First Returning Sample:
   The duration in sampling units from the anchor point to the first recorded waveform sample. Together with the anchor point and the pulse direction vector, this value allows computing the x/y/z world coordinates of the first sample that was recorded for the returning waveform of this pulse:
