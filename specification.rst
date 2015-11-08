@@ -748,7 +748,7 @@ The Waves file (\*.wvs) is not a stand-alone file but needs a corresponding Puls
     
     "File Signature (“PulseWavesWaves”)", "char[16]", "16 bytes"
     "Compression", "unsigned long", "4 bytes"
-    "Reserved", "unsigned char[44]", "40 bytes"
+    "Reserved", "unsigned char[40]", "40 bytes"
 
 File Signature:
   The file signature must contain the zero-terminated string of 16 characters “PulseWavesWaves" that can be checked by user software as a quick look validate the file type.
