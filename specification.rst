@@ -52,7 +52,7 @@ For better readability of the document we use old-fashioned data type names such
     "long", "int32_t", "4"
     "unsigned long long", "uint64_t", "8"
     "long long", "int64_t", "8"
-    "float", "float64_t", "4"
+    "float", "float32_t", "4"
     "double", "float64_t", "8"
 
 ==============================================================================
